@@ -796,6 +796,144 @@
                 ]
             },
             "templateData": "<label class=\"label\" [for]=\"inputId\">\n  {{ label() }}\n</label>\n\n<input\n  class=\"input\"\n  [id]=\"inputId\"\n  [type]=\"type()\"\n  [value]=\"value\"\n  [placeholder]=\"placeholder()\"\n  [required]=\"required()\"\n  [disabled]=\"isDisabled\"\n  [attr.aria-required]=\"required() ? 'true' : null\"\n  [attr.aria-invalid]=\"error() ? 'true' : null\"\n  [attr.aria-describedby]=\"describedBy\"\n  (input)=\"handleInput($event)\"\n  (blur)=\"handleBlur()\"\n/>\n\n@if (hint() && !error()) {\n  <p class=\"hint\" [id]=\"hintId\">{{ hint() }}</p>\n}\n\n@if (error()) {\n  <p class=\"error\" [id]=\"errorId\" role=\"alert\">{{ error() }}</p>\n}"
+        },
+        {
+            "name": "Tag",
+            "id": "component-Tag-f580e3b35ac4e67a24d171f3976528c6de54c7702f353d050236ae2626b40c7ebfe0e16795e531487b491d2fcef6e9b3b10c76c500e9caea080a8a8f2e6e096f",
+            "file": "projects/design-system/src/lib/tag/tag.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "ds-tag",
+            "styleUrls": [
+                "./tag.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./tag.html"
+            ],
+            "templateVariables": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "dismissible",
+                    "coverageIgnore": false,
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 13,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "dismissLabel",
+                    "coverageIgnore": false,
+                    "defaultValue": "'Remove tag'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 14,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "variant",
+                    "coverageIgnore": false,
+                    "defaultValue": "'neutral'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "TagVariant",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 12,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "dismissed",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "void",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 16,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "handleDismiss",
+                    "coverageIgnore": false,
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 18,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ]
+                }
+            ],
+            "coverageIgnore": false,
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, input, output } from '@angular/core';\n\ntype TagVariant = 'neutral' | 'success' | 'error' | 'warning' | 'info';\n\n@Component({\n  imports: [],\n  selector: 'ds-tag',\n  styleUrl: './tag.scss',\n  templateUrl: './tag.html',\n})\nexport class Tag {\n  readonly variant = input<TagVariant>('neutral');\n  readonly dismissible = input(false);\n  readonly dismissLabel = input('Remove tag');\n\n  readonly dismissed = output<void>();\n\n  protected handleDismiss(): void {\n    this.dismissed.emit();\n  }\n}\n",
+            "styleUrl": "./tag.scss",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ":host {\n  display: inline-block;\n}\n\n.tag {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--ds-space-1);\n  padding: var(--ds-space-1) var(--ds-space-2);\n  border-radius: var(--ds-radius-sm);\n  background: var(--ds-color-surface-subtle);\n  color: var(--ds-color-text-default);\n  font-family: var(--ds-font-family-base);\n  font-weight: var(--ds-font-weight-medium);\n  font-size: 0.75rem;\n  line-height: 1;\n}\n\n.tag--success {\n  background: var(--ds-color-feedback-success);\n  color: var(--ds-color-text-inverse);\n}\n\n.tag--error {\n  background: var(--ds-color-feedback-error);\n  color: var(--ds-color-text-inverse);\n}\n\n.tag--warning {\n  background: var(--ds-color-feedback-warning);\n  color: var(--ds-color-text-default);\n}\n\n.tag--info {\n  background: var(--ds-color-feedback-info);\n  color: var(--ds-color-text-inverse);\n}\n\n.tag__dismiss {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  border: 0;\n  background: transparent;\n  color: inherit;\n  cursor: pointer;\n  padding: 0;\n  line-height: 1;\n  font-size: 1rem;\n}\n\n.tag__dismiss:focus-visible {\n  outline: 2px solid currentColor;\n  outline-offset: 1px;\n}\n",
+                    "styleUrl": "./tag.scss"
+                }
+            ],
+            "stylesData": "",
+            "extends": [],
+            "relationships": {
+                "incoming": [],
+                "outgoing": []
+            },
+            "templateData": "<span\n  class=\"tag\"\n  [class.tag--success]=\"variant() === 'success'\"\n  [class.tag--error]=\"variant() === 'error'\"\n  [class.tag--warning]=\"variant() === 'warning'\"\n  [class.tag--info]=\"variant() === 'info'\"\n>\n  <ng-content />\n  @if (dismissible()) {\n    <button\n      type=\"button\"\n      class=\"tag__dismiss\"\n      [attr.aria-label]=\"dismissLabel()\"\n      (click)=\"handleDismiss()\"\n    >\n      <span aria-hidden=\"true\">&times;</span>\n    </button>\n  }\n</span>\n"
         }
     ],
     "modules": [],
@@ -846,6 +984,17 @@
                 "defaultValue": "{\n  args: {\n    label: 'Account email',\n    type: 'email',\n    value: 'alexandra@example.com',\n    disabled: true,\n  },\n}"
             },
             {
+                "name": "Dismissible",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-tag\n        variant=\"info\"\n        [dismissible]=\"true\"\n        dismissLabel=\"Remove filter: Beta\"\n        (dismissed)=\"dismissed()\"\n      >\n        Beta\n      </ds-tag>\n    `,\n  }),\n  play: async ({ canvasElement, args }) => {\n    const canvas = within(canvasElement);\n    const dismissButton = await canvas.findByRole('button', {\n      name: 'Remove filter: Beta',\n    });\n\n    await userEvent.click(dismissButton);\n\n    await expect(args.dismissed).toHaveBeenCalledOnce();\n  },\n}"
+            },
+            {
                 "name": "Email",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -857,6 +1006,17 @@
                 "defaultValue": "{\n  args: {\n    label: 'Email',\n    placeholder: 'name@example.com',\n    type: 'email',\n  },\n}"
             },
             {
+                "name": "Error",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `<ds-tag variant=\"error\">Failed</ds-tag>`,\n  }),\n}"
+            },
+            {
                 "name": "Ghost",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -866,6 +1026,17 @@
                 "deprecationMessage": "",
                 "type": "Story",
                 "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Edit\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'ghost',\n    disabled: false,\n  },\n}"
+            },
+            {
+                "name": "Info",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `<ds-tag variant=\"info\">New</ds-tag>`,\n  }),\n}"
             },
             {
                 "name": "meta",
@@ -899,6 +1070,28 @@
                 "deprecationMessage": "",
                 "type": "Meta<Input>",
                 "defaultValue": "{\n  title: 'Forms/Input',\n  component: Input,\n  tags: ['autodocs'],\n  argTypes: {\n  label: {\n    control: 'text',\n  },\n  placeholder: {\n    control: 'text',\n  },\n  type: {\n    control: 'select',\n    options: ['text', 'email', 'password', 'search'],\n  },\n  size: {\n    control: 'select',\n    options: ['small', 'medium', 'large'],\n  },\n  required: {\n    control: 'boolean',\n  },\n  disabled: {\n    control: 'boolean',\n  },\n  error: {\n    control: 'text',\n    description: 'Custom validation message and invalid state.',\n    table: {\n      type: {\n        summary: 'string | null',\n      },\n      defaultValue: {\n        summary: 'null',\n      },\n    },\n  },\n  hint: {\n    control: 'text',\n    description: 'Supporting text below the input.',\n    table: {\n      type: {\n        summary: 'string | null',\n      },\n      defaultValue: {\n        summary: 'null',\n      },\n    },\n  },\n},\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<Tag>",
+                "defaultValue": "{\n  title: 'Data Display/Tag',\n  component: Tag,\n  tags: ['autodocs'],\n  args: {\n    dismissed: fn(),\n  },\n}"
+            },
+            {
+                "name": "Neutral",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `<ds-tag>Beta</ds-tag>`,\n  }),\n}"
             },
             {
                 "name": "Password",
@@ -976,6 +1169,28 @@
                 "deprecationMessage": "",
                 "type": "Story",
                 "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-card [variant]=\"variant\" [padding]=\"padding\">\n        <p>Quieter surface, more breathing room.</p>\n      </ds-card>\n    `,\n  }),\n  args: {\n    variant: 'subtle',\n    padding: 'lg',\n  },\n}"
+            },
+            {
+                "name": "Success",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `<ds-tag variant=\"success\">Active</ds-tag>`,\n  }),\n}"
+            },
+            {
+                "name": "Warning",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `<ds-tag variant=\"warning\">Pending review</ds-tag>`,\n  }),\n}"
             },
             {
                 "name": "WithError",
@@ -1105,6 +1320,32 @@
                 "rawdescription": "",
                 "description": "",
                 "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "StoryObj<Tag>",
+                "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "TagVariant",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "\"neutral\" | \"success\" | \"error\" | \"warning\" | \"info\"",
+                "file": "projects/design-system/src/lib/tag/tag.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 193
             }
         ],
         "enumerations": [],
@@ -1302,6 +1543,85 @@
                     "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Cancel\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'secondary',\n    disabled: false,\n  },\n}"
                 }
             ],
+            "projects/design-system/src/lib/tag/tag.stories.ts": [
+                {
+                    "name": "Dismissible",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-tag\n        variant=\"info\"\n        [dismissible]=\"true\"\n        dismissLabel=\"Remove filter: Beta\"\n        (dismissed)=\"dismissed()\"\n      >\n        Beta\n      </ds-tag>\n    `,\n  }),\n  play: async ({ canvasElement, args }) => {\n    const canvas = within(canvasElement);\n    const dismissButton = await canvas.findByRole('button', {\n      name: 'Remove filter: Beta',\n    });\n\n    await userEvent.click(dismissButton);\n\n    await expect(args.dismissed).toHaveBeenCalledOnce();\n  },\n}"
+                },
+                {
+                    "name": "Error",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `<ds-tag variant=\"error\">Failed</ds-tag>`,\n  }),\n}"
+                },
+                {
+                    "name": "Info",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `<ds-tag variant=\"info\">New</ds-tag>`,\n  }),\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<Tag>",
+                    "defaultValue": "{\n  title: 'Data Display/Tag',\n  component: Tag,\n  tags: ['autodocs'],\n  args: {\n    dismissed: fn(),\n  },\n}"
+                },
+                {
+                    "name": "Neutral",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `<ds-tag>Beta</ds-tag>`,\n  }),\n}"
+                },
+                {
+                    "name": "Success",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `<ds-tag variant=\"success\">Active</ds-tag>`,\n  }),\n}"
+                },
+                {
+                    "name": "Warning",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `<ds-tag variant=\"warning\">Pending review</ds-tag>`,\n  }),\n}"
+                }
+            ],
             "projects/design-system/.storybook/preview.ts": [
                 {
                     "name": "preview",
@@ -1433,6 +1753,36 @@
                     "rawdescription": "",
                     "description": "",
                     "kind": 184
+                }
+            ],
+            "projects/design-system/src/lib/tag/tag.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "StoryObj<Tag>",
+                    "file": "projects/design-system/src/lib/tag/tag.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/design-system/src/lib/tag/tag.ts": [
+                {
+                    "name": "TagVariant",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "\"neutral\" | \"success\" | \"error\" | \"warning\" | \"info\"",
+                    "file": "projects/design-system/src/lib/tag/tag.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 193
                 }
             ]
         }
@@ -1738,6 +2088,105 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "typealias",
                 "name": "InputType",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Dismissible",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Error",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Info",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Neutral",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Success",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Warning",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/tag/tag.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/tag/tag.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "Tag",
+                "coveragePercent": 0,
+                "coverageCount": "0/6",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/tag/tag.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "TagVariant",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"

@@ -41,6 +41,21 @@ export const Secondary: Story = {
   },
 };
 
+export const Ghost: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <ds-button [variant]="variant" [disabled]="disabled">
+        Edit
+      </ds-button>
+    `,
+  }),
+  args: {
+    variant: 'ghost',
+    disabled: false,
+  },
+};
+
 export const Disabled: Story = {
   render: (args) => ({
     props: args,

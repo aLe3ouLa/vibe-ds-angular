@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 
-type ButtonVariant = 'primary' | 'secondary';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 
 @Component({
   imports: [],

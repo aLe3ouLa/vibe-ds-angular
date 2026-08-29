@@ -2,6 +2,7 @@
   class="button"
   type="button"
   [class.button--secondary]="variant() === 'secondary'"
+  [class.button--ghost]="variant() === 'ghost'"
   [disabled]="disabled()"
 >
   <ng-content />

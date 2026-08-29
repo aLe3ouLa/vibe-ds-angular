@@ -44,3 +44,13 @@
 .button--secondary:hover:not(:disabled) {
   background: var(--ds-color-surface-subtle);
 }
+
+.button--ghost {
+  border: none;
+  background: none;
+  color: var(--ds-color-text-default);
+}
+
+.button--ghost:hover:not(:disabled) {
+  background: var(--ds-color-surface-subtle);
+}

@@ -16,7 +16,7 @@ Use Button for actions that submit, confirm, start, or change something.
 
 | Input | Values | Default | Description |
 |---|---|---|---|
-| `variant` | `primary`, `secondary` | `primary` | Visual emphasis |
+| `variant` | `primary`, `secondary`, `ghost` | `primary` | Visual emphasis |
 | `disabled` | `true`, `false` | `false` | Prevents interaction |
 
 ## Accessibility

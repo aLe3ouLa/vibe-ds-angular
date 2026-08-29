@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tokens-in-sync:
+    name: Tokens in sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Rebuild generated token SCSS from tokens/*.tokens.json
+        run: npm run tokens:build
+
+      - name: Fail if generated SCSS no longer matches the DTCG source
+        run: git diff --exit-code -- projects/design-system/src/lib/styles
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build design-system library
+        run: npx ng build design-system
+
+      - name: Build app
+        run: npx ng build
+
+      - name: Build Storybook
+        run: npx ng run design-system:build-storybook
+
+  a11y-and-interaction-tests:
+    name: Accessibility & interaction tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Storybook accessibility + interaction (play function) tests
+        working-directory: projects/design-system
+        run: npx vitest run

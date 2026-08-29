@@ -1,5 +1,15 @@
 # @alexandra/design-system
 
+## 0.3.0
+
+### Minor Changes
+
+- [#6](https://github.com/aLe3ouLa/vibe-ds-angular/pull/6) [`bffcf56`](https://github.com/aLe3ouLa/vibe-ds-angular/commit/bffcf56fe0c591d5dd6119e9a8c730a28845501c) Thanks [@aLe3ouLa](https://github.com/aLe3ouLa)! - Add `ds-tag` with `variant` (`neutral`/`success`/`error`/`warning`/`info`)
+  and an optional dismiss button (`dismissible`, `dismissLabel`,
+  `dismissed` output). Adds two new design tokens,
+  `--ds-color-feedback-warning` and `--ds-color-feedback-info`, to support
+  the new variants.
+
 ## 0.2.0
 
 ### Minor Changes

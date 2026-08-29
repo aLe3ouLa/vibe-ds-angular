@@ -1,5 +1,13 @@
 # @alexandra/design-system
 
+## 0.2.0
+
+### Minor Changes
+
+- [#4](https://github.com/aLe3ouLa/vibe-ds-angular/pull/4) [`299e7e6`](https://github.com/aLe3ouLa/vibe-ds-angular/commit/299e7e6df7d1181de6a5a0b0a797dd6b31a2993e) Thanks [@aLe3ouLa](https://github.com/aLe3ouLa)! - Add `ds-card`, a content container with `variant` (`default`/`subtle`) and
+  `padding` (`sm`/`md`/`lg`). See RFC 002 for what's deferred (elevation,
+  header/footer slots, clickable cards).
+
 ## 0.1.0
 
 ### Minor Changes

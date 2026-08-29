@@ -1,5 +1,11 @@
 # @alexandra/design-system
 
+## 0.1.0
+
+### Minor Changes
+
+- [#1](https://github.com/aLe3ouLa/vibe-ds-angular/pull/1) [`e88a4f9`](https://github.com/aLe3ouLa/vibe-ds-angular/commit/e88a4f9e3c771596053a748963d1b70c7efcda23) Thanks [@aLe3ouLa](https://github.com/aLe3ouLa)! - Add a variant ghost to the button component
+
 ## 0.0.2
 
 ### Patch Changes

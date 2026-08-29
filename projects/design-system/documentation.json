@@ -9,7 +9,7 @@
     "components": [
         {
             "name": "Button",
-            "id": "component-Button-6f643597115139fb24fdec85e3198a2ce8c645d0c3beddc5c0034718763eaeed9d51c85311250c5d07a38f45d978d2aaa78530cc345a6da1492acc0661f8c55c",
+            "id": "component-Button-0c35eb9c84eb438547552307af8e9911713ba485f0ce17ed04d03dbb41f2eab10cf1af28d4b29e6569ecf3fb7e1c7605370d8d4a5f415f152682ad21e9a13e37",
             "file": "projects/design-system/src/lib/button/button.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -77,12 +77,12 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, input } from '@angular/core';\n\ntype ButtonVariant = 'primary' | 'secondary';\n\n@Component({\n  imports: [],\n  selector: 'ds-button',\n  styleUrl: './button.scss',\n  templateUrl: './button.html',\n})\nexport class Button {\n  readonly variant = input<ButtonVariant>('primary');\n  readonly disabled = input(false);\n}\n",
+            "sourceCode": "import { Component, input } from '@angular/core';\n\ntype ButtonVariant = 'primary' | 'secondary' | 'ghost';\n\n@Component({\n  imports: [],\n  selector: 'ds-button',\n  styleUrl: './button.scss',\n  templateUrl: './button.html',\n})\nexport class Button {\n  readonly variant = input<ButtonVariant>('primary');\n  readonly disabled = input(false);\n}\n",
             "styleUrl": "./button.scss",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": ":host {\n  display: inline-block;\n}\n\n.button {\n  min-height: 2.75rem;\n  padding: var(--ds-space-3) var(--ds-space-6);\n  border: 0;\n  border-radius: var(--ds-radius-lg);\n  background: var(--ds-color-action-primary);\n  color: var(--ds-color-action-primary-text);\n  cursor: pointer;\n  font-family: var(--ds-font-family-base);\n  font-weight: var(--ds-font-weight-bold);\n  transition:\n    background-color 160ms ease,\n    transform 160ms ease;\n}\n\n.button:hover:not(:disabled) {\n  background: var(--ds-color-action-primary-hover);\n}\n\n.button:active:not(:disabled) {\n  transform: scale(0.98);\n}\n\n.button:focus-visible {\n  outline: 3px solid var(--ds-color-action-primary);\n  outline-offset: 3px;\n}\n\n.button:disabled {\n  cursor: not-allowed;\n  opacity: 0.5;\n}\n\n.button--secondary {\n  border: 1px solid var(--ds-color-border-default);\n  background: var(--ds-color-surface-default);\n  color: var(--ds-color-text-default);\n}\n\n.button--secondary:hover:not(:disabled) {\n  background: var(--ds-color-surface-subtle);\n}",
+                    "data": ":host {\n  display: inline-block;\n}\n\n.button {\n  min-height: 2.75rem;\n  padding: var(--ds-space-3) var(--ds-space-6);\n  border: 0;\n  border-radius: var(--ds-radius-lg);\n  background: var(--ds-color-action-primary);\n  color: var(--ds-color-action-primary-text);\n  cursor: pointer;\n  font-family: var(--ds-font-family-base);\n  font-weight: var(--ds-font-weight-bold);\n  transition:\n    background-color 160ms ease,\n    transform 160ms ease;\n}\n\n.button:hover:not(:disabled) {\n  background: var(--ds-color-action-primary-hover);\n}\n\n.button:active:not(:disabled) {\n  transform: scale(0.98);\n}\n\n.button:focus-visible {\n  outline: 3px solid var(--ds-color-action-primary);\n  outline-offset: 3px;\n}\n\n.button:disabled {\n  cursor: not-allowed;\n  opacity: 0.5;\n}\n\n.button--secondary {\n  border: 1px solid var(--ds-color-border-default);\n  background: var(--ds-color-surface-default);\n  color: var(--ds-color-text-default);\n}\n\n.button--secondary:hover:not(:disabled) {\n  background: var(--ds-color-surface-subtle);\n}\n\n.button--ghost {\n  border: none;\n  background: none;\n  color: var(--ds-color-text-default);\n}\n\n.button--ghost:hover:not(:disabled) {\n  background: var(--ds-color-surface-subtle);\n}",
                     "styleUrl": "./button.scss"
                 }
             ],
@@ -92,7 +92,7 @@
                 "incoming": [],
                 "outgoing": []
             },
-            "templateData": "<button\n  class=\"button\"\n  type=\"button\"\n  [class.button--secondary]=\"variant() === 'secondary'\"\n  [disabled]=\"disabled()\"\n>\n  <ng-content />\n</button>"
+            "templateData": "<button\n  class=\"button\"\n  type=\"button\"\n  [class.button--secondary]=\"variant() === 'secondary'\"\n  [class.button--ghost]=\"variant() === 'ghost'\"\n  [disabled]=\"disabled()\"\n>\n  <ng-content />\n</button>"
         },
         {
             "name": "DesignSystem",
@@ -759,6 +759,17 @@
                 "defaultValue": "{\n  args: {\n    label: 'Email',\n    placeholder: 'name@example.com',\n    type: 'email',\n  },\n}"
             },
             {
+                "name": "Ghost",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/button/button.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Edit\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'ghost',\n    disabled: false,\n  },\n}"
+            },
+            {
                 "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -876,7 +887,7 @@
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
                 "coverageIgnore": false,
-                "rawtype": "\"primary\" | \"secondary\"",
+                "rawtype": "\"primary\" | \"secondary\" | \"ghost\"",
                 "file": "projects/design-system/src/lib/button/button.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -1053,6 +1064,17 @@
                     "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Unavailable\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'primary',\n    disabled: true,\n  },\n}"
                 },
                 {
+                    "name": "Ghost",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/button/button.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Edit\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'ghost',\n    disabled: false,\n  },\n}"
+                },
+                {
                     "name": "meta",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
@@ -1109,7 +1131,7 @@
                     "ctype": "miscellaneous",
                     "subtype": "typealias",
                     "coverageIgnore": false,
-                    "rawtype": "\"primary\" | \"secondary\"",
+                    "rawtype": "\"primary\" | \"secondary\" | \"ghost\"",
                     "file": "projects/design-system/src/lib/button/button.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
@@ -1203,6 +1225,16 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
                 "name": "Disabled",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/button/button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Ghost",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"

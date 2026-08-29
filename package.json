@@ -12,10 +12,15 @@
     "tokens:build": "cd projects/design-system && style-dictionary build --config style-dictionary.config.js",
     "prebuild": "npm run tokens:build",
     "prebuild-storybook": "npm run tokens:build",
-    "prestorybook": "npm run tokens:build"
+    "prestorybook": "npm run tokens:build",
+    "changeset": "changeset",
+    "version-packages": "changeset version"
   },
   "private": true,
   "packageManager": "npm@12.0.2",
+  "workspaces": [
+    "projects/design-system"
+  ],
   "dependencies": {
     "@angular/common": "^22.1.4",
     "@angular/compiler": "^22.1.4",
@@ -37,6 +42,7 @@
     "@angular/build": "^22.1.6",
     "@angular/cli": "^22.1.6",
     "@angular/compiler-cli": "^22.1.0",
+    "@changesets/cli": "^3.0.1",
     "@chromatic-com/storybook": "latest",
     "@compodoc/compodoc": "latest",
     "@storybook/addon-a11y": "^10.5.10",

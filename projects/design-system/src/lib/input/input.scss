@@ -1,0 +1,114 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 28rem;
+  color: var(--ds-color-text-default);
+  font-family: var(--ds-font-family-base);
+}
+
+.label {
+  display: block;
+  margin-bottom: var(--ds-space-2);
+  font-size: 0.875rem;
+  font-weight: var(--ds-font-weight-bold);
+}
+
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--ds-space-3) var(--ds-space-4);
+  border: 1px solid var(--ds-color-border-default);
+  border-radius: var(--ds-radius-md);
+  background: var(--ds-color-surface-default);
+  color: var(--ds-color-text-default);
+  font: inherit;
+  font-size: 1rem;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.input::placeholder {
+  color: var(--ds-color-text-muted);
+  opacity: 0.8;
+}
+
+.input--small {
+  min-height: 2.25rem;
+  padding-block: var(--ds-space-2);
+  font-size: 0.875rem;
+}
+
+.input--large {
+  min-height: 3.25rem;
+  padding-block: var(--ds-space-4);
+  font-size: 1.125rem;
+}
+
+.input:hover:not(:disabled) {
+  border-color: var(--ds-color-text-muted);
+}
+
+.input:focus-visible {
+  border-color: var(--ds-color-action-primary);
+  outline: 3px solid color-mix(
+    in srgb,
+    var(--ds-color-action-primary) 35%,
+    transparent
+  );
+  outline-offset: 1px;
+}
+
+.input:disabled {
+  background: var(--ds-color-surface-subtle);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.input--error {
+  border-color: var(--ds-color-feedback-error);
+}
+
+.hint,
+.error {
+  margin: var(--ds-space-2) 0 0;
+  font-size: 0.875rem;
+}
+
+.hint {
+  color: var(--ds-color-text-muted);
+}
+
+.error {
+  color: var(--ds-color-feedback-error);
+  font-weight: var(--ds-font-weight-medium);
+}
+
+.hint,
+.error {
+  margin: var(--ds-space-2) 0 0;
+  font-size: 0.875rem;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+  will-change: opacity, transform;
+}
+
+@starting-style {
+  .hint,
+  .error {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hint,
+  .error {
+    transition: none;
+  }
+}

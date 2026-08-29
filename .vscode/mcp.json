@@ -1,0 +1,11 @@
+{
+  "servers": {
+    "design-system-discovery": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/tools/design-system-mcp/dist/index.js"
+      ]
+    }
+  }
+}

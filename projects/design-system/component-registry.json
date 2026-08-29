@@ -1,0 +1,23 @@
+{
+  "$schema": "Curated, hand-maintained facts about public components that cannot be derived from source: category, governance status, and doc links. Prop types, defaults, and descriptions come from documentation.json (compodoc) at build/query time, not from this file, so they can never drift from the implementation.",
+  "components": [
+    {
+      "name": "ds-button",
+      "compodocName": "Button",
+      "category": "Actions",
+      "status": "stable",
+      "documentation": "docs/components/button.md",
+      "decisionRecord": "docs/governance/decisions/001-button.md",
+      "storybook": "Actions/Button"
+    },
+    {
+      "name": "ds-input",
+      "compodocName": "Input",
+      "category": "Forms",
+      "status": "proposed",
+      "documentation": "docs/governance/rfcs/001-input.md",
+      "decisionRecord": "docs/governance/decisions/002-input.md",
+      "storybook": "Forms/Input"
+    }
+  ]
+}

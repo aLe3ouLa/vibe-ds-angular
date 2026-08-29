@@ -1,0 +1,12 @@
+{
+  "font": {
+    "family": {
+      "base": { "$type": "fontFamily", "$value": "'DM Sans', sans-serif" }
+    },
+    "weight": {
+      "regular": { "$type": "fontWeight", "$value": 400 },
+      "medium": { "$type": "fontWeight", "$value": 500 },
+      "bold": { "$type": "fontWeight", "$value": 700 }
+    }
+  }
+}

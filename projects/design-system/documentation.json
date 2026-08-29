@@ -1,0 +1,1409 @@
+{
+    "pipes": [],
+    "interfaces": [],
+    "injectables": [],
+    "guards": [],
+    "interceptors": [],
+    "classes": [],
+    "directives": [],
+    "components": [
+        {
+            "name": "Button",
+            "id": "component-Button-6f643597115139fb24fdec85e3198a2ce8c645d0c3beddc5c0034718763eaeed9d51c85311250c5d07a38f45d978d2aaa78530cc345a6da1492acc0661f8c55c",
+            "file": "projects/design-system/src/lib/button/button.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "ds-button",
+            "styleUrls": [
+                "./button.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./button.html"
+            ],
+            "templateVariables": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "disabled",
+                    "coverageIgnore": false,
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 13,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "variant",
+                    "coverageIgnore": false,
+                    "defaultValue": "'primary'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ButtonVariant",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 12,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "coverageIgnore": false,
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, input } from '@angular/core';\n\ntype ButtonVariant = 'primary' | 'secondary';\n\n@Component({\n  imports: [],\n  selector: 'ds-button',\n  styleUrl: './button.scss',\n  templateUrl: './button.html',\n})\nexport class Button {\n  readonly variant = input<ButtonVariant>('primary');\n  readonly disabled = input(false);\n}\n",
+            "styleUrl": "./button.scss",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ":host {\n  display: inline-block;\n}\n\n.button {\n  min-height: 2.75rem;\n  padding: var(--ds-space-3) var(--ds-space-6);\n  border: 0;\n  border-radius: var(--ds-radius-lg);\n  background: var(--ds-color-action-primary);\n  color: var(--ds-color-action-primary-text);\n  cursor: pointer;\n  font-family: var(--ds-font-family-base);\n  font-weight: var(--ds-font-weight-bold);\n  transition:\n    background-color 160ms ease,\n    transform 160ms ease;\n}\n\n.button:hover:not(:disabled) {\n  background: var(--ds-color-action-primary-hover);\n}\n\n.button:active:not(:disabled) {\n  transform: scale(0.98);\n}\n\n.button:focus-visible {\n  outline: 3px solid var(--ds-color-action-primary);\n  outline-offset: 3px;\n}\n\n.button:disabled {\n  cursor: not-allowed;\n  opacity: 0.5;\n}\n\n.button--secondary {\n  border: 1px solid var(--ds-color-border-default);\n  background: var(--ds-color-surface-default);\n  color: var(--ds-color-text-default);\n}\n\n.button--secondary:hover:not(:disabled) {\n  background: var(--ds-color-surface-subtle);\n}",
+                    "styleUrl": "./button.scss"
+                }
+            ],
+            "stylesData": "",
+            "extends": [],
+            "relationships": {
+                "incoming": [],
+                "outgoing": []
+            },
+            "templateData": "<button\n  class=\"button\"\n  type=\"button\"\n  [class.button--secondary]=\"variant() === 'secondary'\"\n  [disabled]=\"disabled()\"\n>\n  <ng-content />\n</button>"
+        },
+        {
+            "name": "DesignSystem",
+            "id": "component-DesignSystem-7b9521b7a9740f1a267030ea32126a4ace8db753517dd48bb81f43fb80ca8bbb8da76e48974a57e8914d9c1879bb513ede89e4ea133d10f310c0fd7f211f72d4",
+            "file": "projects/design-system/src/lib/design-system.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "lib-design-system",
+            "styleUrls": [
+                "./design-system.scss"
+            ],
+            "styles": [
+                ""
+            ],
+            "template": "<p>design-system works!</p>",
+            "templateUrl": [],
+            "templateVariables": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "coverageIgnore": false,
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component } from '@angular/core';\n\n@Component({\n  imports: [],\n  selector: 'lib-design-system',\n  styles: ``,\n  template: ` <p>design-system works!</p> `,\n  styleUrls: ['./design-system.scss']\n})\nexport class DesignSystem {}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [],
+            "stylesData": "\n",
+            "extends": [],
+            "relationships": {
+                "incoming": [],
+                "outgoing": []
+            }
+        },
+        {
+            "name": "Input",
+            "id": "component-Input-720db7d56eae76ae6b66b03c673d5be4a67d782033714c1337078d0f64e217a3dec81b1e89552f2e8b83c15ac3c64a9a690126869210241341f18712fca3036e",
+            "file": "projects/design-system/src/lib/input/input.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [
+                {
+                    "name": ")"
+                }
+            ],
+            "selector": "ds-input",
+            "styleUrls": [
+                "./input.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./input.html"
+            ],
+            "templateVariables": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "disabled",
+                    "coverageIgnore": false,
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 30,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "error",
+                    "coverageIgnore": false,
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 31,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "hint",
+                    "coverageIgnore": false,
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 32,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "label",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 25,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": true
+                },
+                {
+                    "name": "placeholder",
+                    "coverageIgnore": false,
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 28,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "required",
+                    "coverageIgnore": false,
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 29,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "size",
+                    "coverageIgnore": false,
+                    "defaultValue": "'medium'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "InputSize",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 27,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "type",
+                    "coverageIgnore": false,
+                    "defaultValue": "'text'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "InputType",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 26,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "errorId",
+                    "coverageIgnore": false,
+                    "defaultValue": "`${this.inputId}-error`",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 42,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "formDisabled",
+                    "coverageIgnore": false,
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 35,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "hintId",
+                    "coverageIgnore": false,
+                    "defaultValue": "`${this.inputId}-hint`",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 41,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "inputId",
+                    "coverageIgnore": false,
+                    "defaultValue": "`ds-input-${crypto.randomUUID()}`",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 40,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "onChange",
+                    "coverageIgnore": false,
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "function",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 37,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "onTouched",
+                    "coverageIgnore": false,
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "function",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 38,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "value",
+                    "coverageIgnore": false,
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 34,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "handleBlur",
+                    "coverageIgnore": false,
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 82,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "handleInput",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 76,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnChange",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "onChange",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "string",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 64,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "jsdoctags": [
+                        {
+                            "name": "onChange",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "string",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnTouched",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "onTouched",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": []
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 68,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "jsdoctags": [
+                        {
+                            "name": "onTouched",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setDisabledState",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 72,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "jsdoctags": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "writeValue",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "string | null",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 60,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "string | null",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "coverageIgnore": false,
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "FormsModule",
+                    "type": "module"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, forwardRef, input } from '@angular/core';\nimport {\n  ControlValueAccessor,\n  FormsModule,\n  NG_VALUE_ACCESSOR,\n} from '@angular/forms';\n\ntype InputType = 'text' | 'email' | 'password' | 'search';\ntype InputSize = 'small' | 'medium' | 'large';\n\n@Component({\n  selector: 'ds-input',\n  imports: [FormsModule],\n  templateUrl: './input.html',\n  styleUrl: './input.scss',\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => Input),\n      multi: true,\n    },\n  ],\n})\nexport class Input implements ControlValueAccessor {\n  readonly label = input.required<string>();\n  readonly type = input<InputType>('text');\n  readonly size = input<InputSize>('medium');\n  readonly placeholder = input('');\n  readonly required = input(false);\n  readonly disabled = input(false);\n  readonly error = input<string | null>(null);\n  readonly hint = input<string | null>(null);\n\n  protected value = '';\n  private formDisabled = false;\n\n  private onChange: (value: string) => void = () => {};\n  private onTouched: () => void = () => {};\n\n  protected readonly inputId = `ds-input-${crypto.randomUUID()}`;\n  protected readonly hintId = `${this.inputId}-hint`;\n  protected readonly errorId = `${this.inputId}-error`;\n\n  get describedBy(): string | null {\n    if (this.error()) {\n      return this.errorId;\n    }\n\n    if (this.hint()) {\n      return this.hintId;\n    }\n\n    return null;\n  }\n\n  get isDisabled(): boolean {\n    return this.disabled() || this.formDisabled;\n  }\n\n  writeValue(value: string | null): void {\n    this.value = value ?? '';\n  }\n\n  registerOnChange(onChange: (value: string) => void): void {\n    this.onChange = onChange;\n  }\n\n  registerOnTouched(onTouched: () => void): void {\n    this.onTouched = onTouched;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.formDisabled = isDisabled;\n  }\n\n  protected handleInput(event: Event): void {\n    const inputElement = event.target as HTMLInputElement;\n    this.value = inputElement.value;\n    this.onChange(this.value);\n  }\n\n  protected handleBlur(): void {\n    this.onTouched();\n  }\n}",
+            "styleUrl": "./input.scss",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ":host {\n  display: block;\n  width: 100%;\n  max-width: 28rem;\n  color: var(--ds-color-text-default);\n  font-family: var(--ds-font-family-base);\n}\n\n.label {\n  display: block;\n  margin-bottom: var(--ds-space-2);\n  font-size: 0.875rem;\n  font-weight: var(--ds-font-weight-bold);\n}\n\n.input {\n  box-sizing: border-box;\n  width: 100%;\n  min-height: 2.75rem;\n  padding: var(--ds-space-3) var(--ds-space-4);\n  border: 1px solid var(--ds-color-border-default);\n  border-radius: var(--ds-radius-md);\n  background: var(--ds-color-surface-default);\n  color: var(--ds-color-text-default);\n  font: inherit;\n  font-size: 1rem;\n  transition:\n    border-color 160ms ease,\n    box-shadow 160ms ease,\n    background-color 160ms ease;\n}\n\n.input::placeholder {\n  color: var(--ds-color-text-muted);\n  opacity: 0.8;\n}\n\n.input--small {\n  min-height: 2.25rem;\n  padding-block: var(--ds-space-2);\n  font-size: 0.875rem;\n}\n\n.input--large {\n  min-height: 3.25rem;\n  padding-block: var(--ds-space-4);\n  font-size: 1.125rem;\n}\n\n.input:hover:not(:disabled) {\n  border-color: var(--ds-color-text-muted);\n}\n\n.input:focus-visible {\n  border-color: var(--ds-color-action-primary);\n  outline: 3px solid color-mix(\n    in srgb,\n    var(--ds-color-action-primary) 35%,\n    transparent\n  );\n  outline-offset: 1px;\n}\n\n.input:disabled {\n  background: var(--ds-color-surface-subtle);\n  cursor: not-allowed;\n  opacity: 0.6;\n}\n\n.input--error {\n  border-color: var(--ds-color-feedback-error);\n}\n\n.hint,\n.error {\n  margin: var(--ds-space-2) 0 0;\n  font-size: 0.875rem;\n}\n\n.hint {\n  color: var(--ds-color-text-muted);\n}\n\n.error {\n  color: var(--ds-color-feedback-error);\n  font-weight: var(--ds-font-weight-medium);\n}\n\n.hint,\n.error {\n  margin: var(--ds-space-2) 0 0;\n  font-size: 0.875rem;\n  opacity: 1;\n  transform: translateY(0);\n  transition:\n    opacity 180ms ease,\n    transform 180ms ease;\n  will-change: opacity, transform;\n}\n\n@starting-style {\n  .hint,\n  .error {\n    opacity: 0;\n    transform: translateY(-0.25rem);\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .hint,\n  .error {\n    transition: none;\n  }\n}",
+                    "styleUrl": "./input.scss"
+                }
+            ],
+            "stylesData": "",
+            "extends": [],
+            "implements": [
+                "ControlValueAccessor"
+            ],
+            "accessors": {
+                "describedBy": {
+                    "name": "describedBy",
+                    "getSignature": {
+                        "name": "describedBy",
+                        "type": "unknown",
+                        "returnType": "string | null",
+                        "line": 44,
+                        "rawdescription": "\n",
+                        "description": ""
+                    }
+                },
+                "isDisabled": {
+                    "name": "isDisabled",
+                    "getSignature": {
+                        "name": "isDisabled",
+                        "type": "boolean",
+                        "returnType": "boolean",
+                        "line": 56,
+                        "rawdescription": "\n",
+                        "description": ""
+                    }
+                }
+            },
+            "relationships": {
+                "incoming": [],
+                "outgoing": [
+                    {
+                        "name": "FormsModule",
+                        "type": "module"
+                    },
+                    {
+                        "name": ")",
+                        "type": "injectable"
+                    },
+                    {
+                        "name": "ControlValueAccessor",
+                        "type": "interface"
+                    }
+                ]
+            },
+            "templateData": "<label class=\"label\" [for]=\"inputId\">\n  {{ label() }}\n</label>\n\n<input\n  class=\"input\"\n  [id]=\"inputId\"\n  [type]=\"type()\"\n  [value]=\"value\"\n  [placeholder]=\"placeholder()\"\n  [required]=\"required()\"\n  [disabled]=\"isDisabled\"\n  [attr.aria-required]=\"required() ? 'true' : null\"\n  [attr.aria-invalid]=\"error() ? 'true' : null\"\n  [attr.aria-describedby]=\"describedBy\"\n  (input)=\"handleInput($event)\"\n  (blur)=\"handleBlur()\"\n/>\n\n@if (hint() && !error()) {\n  <p class=\"hint\" [id]=\"hintId\">{{ hint() }}</p>\n}\n\n@if (error()) {\n  <p class=\"error\" [id]=\"errorId\" role=\"alert\">{{ error() }}</p>\n}"
+        }
+    ],
+    "modules": [],
+    "miscellaneous": {
+        "variables": [
+            {
+                "name": "Default",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/input/input.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    label: 'Display name',\n    placeholder: 'Enter your name',\n    type: 'text',\n    size: 'medium',\n    required: false,\n    disabled: false,\n    error: null,\n    hint: null,\n  },\n}"
+            },
+            {
+                "name": "Disabled",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/button/button.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Unavailable\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'primary',\n    disabled: true,\n  },\n}"
+            },
+            {
+                "name": "Disabled",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/input/input.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    label: 'Account email',\n    type: 'email',\n    value: 'alexandra@example.com',\n    disabled: true,\n  },\n}"
+            },
+            {
+                "name": "Email",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/input/input.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    label: 'Email',\n    placeholder: 'name@example.com',\n    type: 'email',\n  },\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/button/button.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<Button>",
+                "defaultValue": "{\n  title: 'Actions/Button',\n  component: Button,\n  tags: ['autodocs'],\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/input/input.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<Input>",
+                "defaultValue": "{\n  title: 'Forms/Input',\n  component: Input,\n  tags: ['autodocs'],\n  argTypes: {\n  label: {\n    control: 'text',\n  },\n  placeholder: {\n    control: 'text',\n  },\n  type: {\n    control: 'select',\n    options: ['text', 'email', 'password', 'search'],\n  },\n  size: {\n    control: 'select',\n    options: ['small', 'medium', 'large'],\n  },\n  required: {\n    control: 'boolean',\n  },\n  disabled: {\n    control: 'boolean',\n  },\n  error: {\n    control: 'text',\n    description: 'Custom validation message and invalid state.',\n    table: {\n      type: {\n        summary: 'string | null',\n      },\n      defaultValue: {\n        summary: 'null',\n      },\n    },\n  },\n  hint: {\n    control: 'text',\n    description: 'Supporting text below the input.',\n    table: {\n      type: {\n        summary: 'string | null',\n      },\n      defaultValue: {\n        summary: 'null',\n      },\n    },\n  },\n},\n}"
+            },
+            {
+                "name": "Password",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/input/input.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    label: 'Password',\n    placeholder: 'Enter your password',\n    type: 'password',\n  },\n}"
+            },
+            {
+                "name": "preview",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/.storybook/preview.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Preview",
+                "defaultValue": "{\n  parameters: {\n    controls: {\n      matchers: {\n        color: /(background|color)$/i,\n        date: /Date$/i,\n      },\n    },\n  },\n}"
+            },
+            {
+                "name": "Primary",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/button/button.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Play\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'primary',\n    disabled: false,\n  },\n}"
+            },
+            {
+                "name": "Required",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/input/input.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    label: 'Username',\n    placeholder: 'Enter your username',\n    required: true,\n  },\n}"
+            },
+            {
+                "name": "Search",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/input/input.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    label: 'Search',\n    placeholder: 'Search tracks',\n    type: 'search',\n  },\n}"
+            },
+            {
+                "name": "Secondary",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/button/button.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Cancel\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'secondary',\n    disabled: false,\n  },\n}"
+            },
+            {
+                "name": "WithError",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/input/input.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    label: 'Email',\n    placeholder: 'name@example.com',\n    type: 'email',\n    error: 'Enter a valid email address.',\n  },\n}"
+            },
+            {
+                "name": "WithHint",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/input/input.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    label: 'Username',\n    placeholder: 'Choose a username',\n    hint: 'Use between 3 and 30 characters.',\n  },\n}"
+            }
+        ],
+        "functions": [],
+        "typealiases": [
+            {
+                "name": "ButtonVariant",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "\"primary\" | \"secondary\"",
+                "file": "projects/design-system/src/lib/button/button.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 193
+            },
+            {
+                "name": "InputSize",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "\"small\" | \"medium\" | \"large\"",
+                "file": "projects/design-system/src/lib/input/input.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 193
+            },
+            {
+                "name": "InputType",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "\"text\" | \"email\" | \"password\" | \"search\"",
+                "file": "projects/design-system/src/lib/input/input.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 193
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "StoryObj<Button>",
+                "file": "projects/design-system/src/lib/button/button.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "StoryObj<Input>",
+                "file": "projects/design-system/src/lib/input/input.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 184
+            }
+        ],
+        "enumerations": [],
+        "groupedVariables": {
+            "projects/design-system/src/lib/input/input.stories.ts": [
+                {
+                    "name": "Default",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/input/input.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    label: 'Display name',\n    placeholder: 'Enter your name',\n    type: 'text',\n    size: 'medium',\n    required: false,\n    disabled: false,\n    error: null,\n    hint: null,\n  },\n}"
+                },
+                {
+                    "name": "Disabled",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/input/input.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    label: 'Account email',\n    type: 'email',\n    value: 'alexandra@example.com',\n    disabled: true,\n  },\n}"
+                },
+                {
+                    "name": "Email",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/input/input.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    label: 'Email',\n    placeholder: 'name@example.com',\n    type: 'email',\n  },\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/input/input.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<Input>",
+                    "defaultValue": "{\n  title: 'Forms/Input',\n  component: Input,\n  tags: ['autodocs'],\n  argTypes: {\n  label: {\n    control: 'text',\n  },\n  placeholder: {\n    control: 'text',\n  },\n  type: {\n    control: 'select',\n    options: ['text', 'email', 'password', 'search'],\n  },\n  size: {\n    control: 'select',\n    options: ['small', 'medium', 'large'],\n  },\n  required: {\n    control: 'boolean',\n  },\n  disabled: {\n    control: 'boolean',\n  },\n  error: {\n    control: 'text',\n    description: 'Custom validation message and invalid state.',\n    table: {\n      type: {\n        summary: 'string | null',\n      },\n      defaultValue: {\n        summary: 'null',\n      },\n    },\n  },\n  hint: {\n    control: 'text',\n    description: 'Supporting text below the input.',\n    table: {\n      type: {\n        summary: 'string | null',\n      },\n      defaultValue: {\n        summary: 'null',\n      },\n    },\n  },\n},\n}"
+                },
+                {
+                    "name": "Password",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/input/input.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    label: 'Password',\n    placeholder: 'Enter your password',\n    type: 'password',\n  },\n}"
+                },
+                {
+                    "name": "Required",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/input/input.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    label: 'Username',\n    placeholder: 'Enter your username',\n    required: true,\n  },\n}"
+                },
+                {
+                    "name": "Search",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/input/input.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    label: 'Search',\n    placeholder: 'Search tracks',\n    type: 'search',\n  },\n}"
+                },
+                {
+                    "name": "WithError",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/input/input.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    label: 'Email',\n    placeholder: 'name@example.com',\n    type: 'email',\n    error: 'Enter a valid email address.',\n  },\n}"
+                },
+                {
+                    "name": "WithHint",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/input/input.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    label: 'Username',\n    placeholder: 'Choose a username',\n    hint: 'Use between 3 and 30 characters.',\n  },\n}"
+                }
+            ],
+            "projects/design-system/src/lib/button/button.stories.ts": [
+                {
+                    "name": "Disabled",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/button/button.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Unavailable\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'primary',\n    disabled: true,\n  },\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/button/button.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<Button>",
+                    "defaultValue": "{\n  title: 'Actions/Button',\n  component: Button,\n  tags: ['autodocs'],\n}"
+                },
+                {
+                    "name": "Primary",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/button/button.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Play\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'primary',\n    disabled: false,\n  },\n}"
+                },
+                {
+                    "name": "Secondary",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/button/button.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Cancel\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'secondary',\n    disabled: false,\n  },\n}"
+                }
+            ],
+            "projects/design-system/.storybook/preview.ts": [
+                {
+                    "name": "preview",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/.storybook/preview.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Preview",
+                    "defaultValue": "{\n  parameters: {\n    controls: {\n      matchers: {\n        color: /(background|color)$/i,\n        date: /Date$/i,\n      },\n    },\n  },\n}"
+                }
+            ]
+        },
+        "groupedFunctions": {},
+        "groupedEnumerations": {},
+        "groupedTypeAliases": {
+            "projects/design-system/src/lib/button/button.ts": [
+                {
+                    "name": "ButtonVariant",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "\"primary\" | \"secondary\"",
+                    "file": "projects/design-system/src/lib/button/button.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 193
+                }
+            ],
+            "projects/design-system/src/lib/input/input.ts": [
+                {
+                    "name": "InputSize",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "\"small\" | \"medium\" | \"large\"",
+                    "file": "projects/design-system/src/lib/input/input.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 193
+                },
+                {
+                    "name": "InputType",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "\"text\" | \"email\" | \"password\" | \"search\"",
+                    "file": "projects/design-system/src/lib/input/input.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 193
+                }
+            ],
+            "projects/design-system/src/lib/button/button.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "StoryObj<Button>",
+                    "file": "projects/design-system/src/lib/button/button.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/design-system/src/lib/input/input.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "StoryObj<Input>",
+                    "file": "projects/design-system/src/lib/input/input.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ]
+        }
+    },
+    "routes": {
+        "name": "<root>",
+        "kind": "module",
+        "children": []
+    },
+    "coverage": {
+        "count": 0,
+        "status": "low",
+        "files": [
+            {
+                "filePath": "projects/design-system/.storybook/preview.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "preview",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/button/button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Disabled",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/button/button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/button/button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Primary",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/button/button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Secondary",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/button/button.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/button/button.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "Button",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/button/button.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "ButtonVariant",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/design-system.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "DesignSystem",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/input/input.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Default",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/input/input.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Disabled",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/input/input.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Email",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/input/input.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/input/input.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Password",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/input/input.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Required",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/input/input.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Search",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/input/input.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "WithError",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/input/input.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "WithHint",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/input/input.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/input/input.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "Input",
+                "coveragePercent": 0,
+                "coverageCount": "0/22",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/input/input.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "InputSize",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/input/input.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "InputType",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            }
+        ]
+    }
+}

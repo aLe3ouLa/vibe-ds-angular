@@ -1,0 +1,136 @@
+# RFC: Input
+
+- Status: Proposed
+- Author: Alexandra
+- Date: 2026-08-28
+- Reviewers: Pending
+
+## Problem
+
+Product teams need a consistent, accessible text input for forms and dialogs. Without a shared component, labels, validation messages, focus styles, and disabled behavior can diverge between applications.
+
+The first release will focus on text entry. Number-specific behavior, date selection, and interactive input icons are outside this RFC.
+
+## Proposed API
+
+The component selector is `ds-input`.
+
+```html
+<ds-input
+	label="Display name"
+	placeholder="Enter your name"
+	size="medium"
+	[required]="true"
+	[disabled]="false"
+	[error]="nameError"
+	[(ngModel)]="name"
+></ds-input>
+```
+
+### Inputs
+
+| Input | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | required | Visible label associated with the input |
+| `placeholder` | `string` | `''` | Optional example or input hint |
+| `type` | `text`, `email`, `password`, `search` | `text` | Native input type |
+| `size` | `small`, `medium`, `large` | `medium` | Controls the input dimensions |
+| `required` | `boolean` | `false` | Marks the value as required |
+| `disabled` | `boolean` | `false` | Prevents interaction |
+| `error` | `string \| null` | `null` | Custom validation message and invalid state |
+| `hint` | `string \| null` | `null` | Supporting text below the input |
+| `icon` | `string \| null` | `null` | Optional non-interactive icon identifier |
+| `actionIcon` | `string \| null` | `null` | Optional interactive icon identifier |
+| `actionLabel` | `string \| null` | `null` | Accessible name for the interactive icon |
+
+The component emits an `iconAction` event when the interactive icon is activated by pointer or keyboard. Interactive icons must have an accessible name through `actionLabel`.
+
+### Supported states
+
+- Default
+- Focused
+- Filled
+- Disabled
+- Required
+- Invalid with an error message
+- Valid with application-provided validation feedback
+- With a non-interactive icon, such as an email icon
+- With an interactive icon, such as copy or clear search
+
+The initial component will support text entry through Angular forms using `ControlValueAccessor`, including `ngModel` and reactive forms.
+
+### Validation boundary
+
+The component supports native browser validation by forwarding standard input attributes such as `required`, `type`, `minlength`, `maxlength`, and `pattern`.
+
+Consumers own custom and business validation. They pass custom validation feedback through the `error` input.
+
+The component presents both native and custom validation consistently through error styling, `aria-invalid`, `aria-describedby`, and error text. It does not implement product-specific validation rules.
+
+The component should not automatically display an error only because the browser reports an invalid value. Consumers decide when feedback should appear, typically after the field is touched or the form is submitted.
+
+## Alternatives
+
+- Native `<input>`: remains the underlying control and is the fallback for unsupported behavior.
+- Application-specific inputs: rejected because they duplicate accessibility and visual decisions.
+- A combined input component for text, number, date, and search: deferred to keep the first API focused.
+
+## Accessibility
+
+- Use a native `<input>` element.
+- Render a visible `<label>` and associate it with the input using `for` and `id`.
+- Do not use placeholder text as a replacement for the label.
+- Set `aria-required="true"` when `required` is true.
+- Set `aria-invalid="true"` when `error` is present.
+- Connect hint and error content with `aria-describedby`.
+- Ensure error text is programmatically associated and available to assistive technology.
+- Support keyboard focus and text entry.
+- Provide a visible `:focus-visible` state.
+- Preserve the native disabled behavior.
+
+## Design tokens
+
+Use existing semantic tokens for:
+
+- Text and placeholder colors
+- Surface and border colors
+- Focus indicator
+- Error state colors, once semantic error tokens are added
+- Success state colors, once semantic success tokens are added
+- Spacing, typography, and border radius
+
+No component-specific primitive values should be introduced. Add semantic error and success tokens before implementation. Their primitive values must come from the existing palette and should be reviewed as part of the token change.
+
+## Versioning impact
+
+This is a new public component and is a minor release after the first stable release, for example `1.0.0` to `1.1.0`. It is not a major release because it does not change an existing public API.
+
+The following future changes would require a major release or a deprecation cycle:
+
+- Renaming or removing a public input
+- Changing the selector
+- Removing Angular forms support
+- Changing the meaning of an existing input
+
+## Adoption and migration
+
+Consumers should discover the component through:
+
+- The package public API and generated type declarations
+- The package README
+- Storybook stories and autogenerated documentation
+- Component documentation in `docs/components/`
+- Consumer repository instructions for Claude and GitHub Copilot
+
+MCP-based discovery is deferred. It may be evaluated after the package documentation and exports provide reliable discovery without additional tooling.
+
+Migration from an application-specific input will be documented with usage examples and an accessibility checklist. No automated migration is required for the initial release because there is no existing design-system input API to replace.
+
+## Open questions
+
+- Should `valid` be an explicit input, or should valid styling remain application-controlled? Resolved: valid styling remains application-controlled; consumers provide validation feedback.
+- Should the first release support only text input, or also `email`, `password`, and `search` types? Resolved: support all four native types.
+- Which semantic error tokens should be added before implementation? Resolved: add error and success semantic tokens.
+- Which accessibility reviewer will approve the keyboard and validation behavior? Resolved: Alexandra.
+- Should interactive icons be a separate component or a later `ds-input` feature? Resolved: support non-interactive icons and keyboard-accessible interactive icons in `ds-input`.
+- Should the component be discoverable by AI through MCP? Resolved: defer MCP; use package exports, documentation, Storybook, and repository instructions first.

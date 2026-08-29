@@ -1,0 +1,8 @@
+<div
+  class="card"
+  [class.card--subtle]="variant() === 'subtle'"
+  [class.card--padding-sm]="padding() === 'sm'"
+  [class.card--padding-lg]="padding() === 'lg'"
+>
+  <ng-content />
+</div>

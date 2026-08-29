@@ -18,6 +18,15 @@
       "documentation": "docs/governance/rfcs/001-input.md",
       "decisionRecord": "docs/governance/decisions/002-input.md",
       "storybook": "Forms/Input"
+    },
+    {
+      "name": "ds-card",
+      "compodocName": "Card",
+      "category": "Layout",
+      "status": "stable",
+      "documentation": "docs/components/card.md",
+      "decisionRecord": "docs/governance/decisions/003-card.md",
+      "storybook": "Layout/Card"
     }
   ]
 }

@@ -95,6 +95,93 @@
             "templateData": "<button\n  class=\"button\"\n  type=\"button\"\n  [class.button--secondary]=\"variant() === 'secondary'\"\n  [class.button--ghost]=\"variant() === 'ghost'\"\n  [disabled]=\"disabled()\"\n>\n  <ng-content />\n</button>"
         },
         {
+            "name": "Card",
+            "id": "component-Card-441d697c1035dfae87b343a8f74ecb53ba686baac42103c810ad363f77ad4c8631f7183151bbc9739fe05a929a025a84ca6eadfcf7297145d263f5db2b8edc95",
+            "file": "projects/design-system/src/lib/card/card.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "ds-card",
+            "styleUrls": [
+                "./card.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./card.html"
+            ],
+            "templateVariables": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "padding",
+                    "coverageIgnore": false,
+                    "defaultValue": "'md'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "CardPadding",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 14,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "variant",
+                    "coverageIgnore": false,
+                    "defaultValue": "'default'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "CardVariant",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 13,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "coverageIgnore": false,
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, input } from '@angular/core';\n\ntype CardVariant = 'default' | 'subtle';\ntype CardPadding = 'sm' | 'md' | 'lg';\n\n@Component({\n  imports: [],\n  selector: 'ds-card',\n  styleUrl: './card.scss',\n  templateUrl: './card.html',\n})\nexport class Card {\n  readonly variant = input<CardVariant>('default');\n  readonly padding = input<CardPadding>('md');\n}\n",
+            "styleUrl": "./card.scss",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ":host {\n  display: block;\n}\n\n.card {\n  padding: var(--ds-space-4);\n  border: 1px solid var(--ds-color-border-default);\n  border-radius: var(--ds-radius-lg);\n  background: var(--ds-color-surface-default);\n  color: var(--ds-color-text-default);\n  font-family: var(--ds-font-family-base);\n}\n\n.card--subtle {\n  background: var(--ds-color-surface-subtle);\n  border-color: transparent;\n}\n\n.card--padding-sm {\n  padding: var(--ds-space-3);\n}\n\n.card--padding-lg {\n  padding: var(--ds-space-6);\n}\n",
+                    "styleUrl": "./card.scss"
+                }
+            ],
+            "stylesData": "",
+            "extends": [],
+            "relationships": {
+                "incoming": [],
+                "outgoing": []
+            },
+            "templateData": "<div\n  class=\"card\"\n  [class.card--subtle]=\"variant() === 'subtle'\"\n  [class.card--padding-sm]=\"padding() === 'sm'\"\n  [class.card--padding-lg]=\"padding() === 'lg'\"\n>\n  <ng-content />\n</div>\n"
+        },
+        {
             "name": "DesignSystem",
             "id": "component-DesignSystem-7b9521b7a9740f1a267030ea32126a4ace8db753517dd48bb81f43fb80ca8bbb8da76e48974a57e8914d9c1879bb513ede89e4ea133d10f310c0fd7f211f72d4",
             "file": "projects/design-system/src/lib/design-system.ts",
@@ -718,6 +805,17 @@
                 "name": "Default",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/design-system/src/lib/card/card.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-card [variant]=\"variant\" [padding]=\"padding\">\n        <h3>Plan usage</h3>\n        <p>You've used 8 of 10 seats this month.</p>\n      </ds-card>\n    `,\n  }),\n  args: {\n    variant: 'default',\n    padding: 'md',\n  },\n}"
+            },
+            {
+                "name": "Default",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/design-system/src/lib/input/input.stories.ts",
                 "coverageIgnore": false,
                 "deprecated": false,
@@ -779,6 +877,17 @@
                 "deprecationMessage": "",
                 "type": "Meta<Button>",
                 "defaultValue": "{\n  title: 'Actions/Button',\n  component: Button,\n  tags: ['autodocs'],\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/card/card.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<Card>",
+                "defaultValue": "{\n  title: 'Layout/Card',\n  component: Card,\n  tags: ['autodocs'],\n}"
             },
             {
                 "name": "meta",
@@ -858,6 +967,17 @@
                 "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Cancel\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'secondary',\n    disabled: false,\n  },\n}"
             },
             {
+                "name": "Subtle",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/card/card.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-card [variant]=\"variant\" [padding]=\"padding\">\n        <p>Quieter surface, more breathing room.</p>\n      </ds-card>\n    `,\n  }),\n  args: {\n    variant: 'subtle',\n    padding: 'lg',\n  },\n}"
+            },
+            {
                 "name": "WithError",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -889,6 +1009,32 @@
                 "coverageIgnore": false,
                 "rawtype": "\"primary\" | \"secondary\" | \"ghost\"",
                 "file": "projects/design-system/src/lib/button/button.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 193
+            },
+            {
+                "name": "CardPadding",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "\"sm\" | \"md\" | \"lg\"",
+                "file": "projects/design-system/src/lib/card/card.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 193
+            },
+            {
+                "name": "CardVariant",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "\"default\" | \"subtle\"",
+                "file": "projects/design-system/src/lib/card/card.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "rawdescription": "",
@@ -939,6 +1085,19 @@
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
                 "coverageIgnore": false,
+                "rawtype": "StoryObj<Card>",
+                "file": "projects/design-system/src/lib/card/card.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
                 "rawtype": "StoryObj<Input>",
                 "file": "projects/design-system/src/lib/input/input.stories.ts",
                 "deprecated": false,
@@ -950,6 +1109,41 @@
         ],
         "enumerations": [],
         "groupedVariables": {
+            "projects/design-system/src/lib/card/card.stories.ts": [
+                {
+                    "name": "Default",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/card/card.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-card [variant]=\"variant\" [padding]=\"padding\">\n        <h3>Plan usage</h3>\n        <p>You've used 8 of 10 seats this month.</p>\n      </ds-card>\n    `,\n  }),\n  args: {\n    variant: 'default',\n    padding: 'md',\n  },\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/card/card.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<Card>",
+                    "defaultValue": "{\n  title: 'Layout/Card',\n  component: Card,\n  tags: ['autodocs'],\n}"
+                },
+                {
+                    "name": "Subtle",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/card/card.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-card [variant]=\"variant\" [padding]=\"padding\">\n        <p>Quieter surface, more breathing room.</p>\n      </ds-card>\n    `,\n  }),\n  args: {\n    variant: 'subtle',\n    padding: 'lg',\n  },\n}"
+                }
+            ],
             "projects/design-system/src/lib/input/input.stories.ts": [
                 {
                     "name": "Default",
@@ -1140,6 +1334,34 @@
                     "kind": 193
                 }
             ],
+            "projects/design-system/src/lib/card/card.ts": [
+                {
+                    "name": "CardPadding",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "\"sm\" | \"md\" | \"lg\"",
+                    "file": "projects/design-system/src/lib/card/card.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 193
+                },
+                {
+                    "name": "CardVariant",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "\"default\" | \"subtle\"",
+                    "file": "projects/design-system/src/lib/card/card.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 193
+                }
+            ],
             "projects/design-system/src/lib/input/input.ts": [
                 {
                     "name": "InputSize",
@@ -1176,6 +1398,21 @@
                     "coverageIgnore": false,
                     "rawtype": "StoryObj<Button>",
                     "file": "projects/design-system/src/lib/button/button.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/design-system/src/lib/card/card.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "StoryObj<Card>",
+                    "file": "projects/design-system/src/lib/card/card.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "",
@@ -1294,6 +1531,75 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "typealias",
                 "name": "ButtonVariant",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/card/card.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Default",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/card/card.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/card/card.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Subtle",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/card/card.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/card/card.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "Card",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/card/card.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "CardPadding",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/card/card.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "CardVariant",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"

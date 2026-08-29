@@ -1,0 +1,19 @@
+<span
+  class="tag"
+  [class.tag--success]="variant() === 'success'"
+  [class.tag--error]="variant() === 'error'"
+  [class.tag--warning]="variant() === 'warning'"
+  [class.tag--info]="variant() === 'info'"
+>
+  <ng-content />
+  @if (dismissible()) {
+    <button
+      type="button"
+      class="tag__dismiss"
+      [attr.aria-label]="dismissLabel()"
+      (click)="handleDismiss()"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  }
+</span>

@@ -20,7 +20,9 @@
     },
     "feedback": {
       "error": { "$type": "color", "$value": "{color.red.600}" },
-      "success": { "$type": "color", "$value": "{color.green.700}" }
+      "success": { "$type": "color", "$value": "{color.green.700}" },
+      "warning": { "$type": "color", "$value": "{color.yellow.500}" },
+      "info": { "$type": "color", "$value": "{color.blue.500}" }
     }
   }
 }

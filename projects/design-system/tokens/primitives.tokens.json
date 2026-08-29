@@ -8,6 +8,12 @@
     "red": {
       "600": { "$type": "color", "$value": "#d93025" }
     },
+    "yellow": {
+      "500": { "$type": "color", "$value": "#f2b705" }
+    },
+    "blue": {
+      "500": { "$type": "color", "$value": "#1967d2" }
+    },
     "gray": {
       "50": { "$type": "color", "$value": "#f7f7f7" },
       "200": { "$type": "color", "$value": "#d9d9d9" },

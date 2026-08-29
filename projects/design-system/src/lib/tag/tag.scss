@@ -1,0 +1,55 @@
+:host {
+  display: inline-block;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-space-1);
+  padding: var(--ds-space-1) var(--ds-space-2);
+  border-radius: var(--ds-radius-sm);
+  background: var(--ds-color-surface-subtle);
+  color: var(--ds-color-text-default);
+  font-family: var(--ds-font-family-base);
+  font-weight: var(--ds-font-weight-medium);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.tag--success {
+  background: var(--ds-color-feedback-success);
+  color: var(--ds-color-text-inverse);
+}
+
+.tag--error {
+  background: var(--ds-color-feedback-error);
+  color: var(--ds-color-text-inverse);
+}
+
+.tag--warning {
+  background: var(--ds-color-feedback-warning);
+  color: var(--ds-color-text-default);
+}
+
+.tag--info {
+  background: var(--ds-color-feedback-info);
+  color: var(--ds-color-text-inverse);
+}
+
+.tag__dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  font-size: 1rem;
+}
+
+.tag__dismiss:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}

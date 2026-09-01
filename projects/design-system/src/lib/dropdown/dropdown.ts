@@ -139,7 +139,7 @@ export class Dropdown<T> implements ControlValueAccessor {
       return null;
     }
 
-    return this.optionId(opts[index]);
+    return `${this.dropdownId}-option-${index}`;
   });
 
   protected get describedBy(): string | null {
@@ -172,10 +172,6 @@ export class Dropdown<T> implements ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.formDisabled = isDisabled;
-  }
-
-  protected optionId(option: DropdownOption<T>): string {
-    return `${this.dropdownId}-option-${this.options().indexOf(option)}`;
   }
 
   protected selectedOptions(): DropdownOption<T>[] {
@@ -354,11 +350,17 @@ export class Dropdown<T> implements ControlValueAccessor {
 
   protected handleSearchInput(event: Event): void {
     const target = event.target as HTMLInputElement;
+
+    if (this.isDisabled || this.readonly()) {
+      target.value = this.searchTerm();
+      return;
+    }
+
     this.searchTerm.set(target.value);
     this.activeIndex.set(0);
 
     if (!this.isOpen()) {
-      this.isOpen.set(true);
+      this.open();
     }
   }
 

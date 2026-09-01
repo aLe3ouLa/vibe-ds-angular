@@ -75,6 +75,10 @@ export interface DropdownOption<T> {
 | `menuAriaLabel` | `string \| null` | `null` | Accessible name for the listbox |
 | `clearAriaLabel` | `string` | `'Clear selection'` | Name for the clear button |
 
+When a searchable dropdown has no matching options, its listbox displays a
+non-interactive “No options” result. This is a presentational empty state,
+not an additional API surface.
+
 Implements `ControlValueAccessor` (works with `[(ngModel)]` and reactive
 forms, matching `ds-input`). Value is `T | null` when `multiple` is
 `false`, `T[]` when `true` — the same duality native `<select multiple>`

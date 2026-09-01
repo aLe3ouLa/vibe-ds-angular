@@ -75,8 +75,12 @@
 }
 
 .dropdown__trigger:focus-visible {
-  border-color: var(--ds-color-text-default);
-  outline: 3px solid var(--ds-color-text-default);
+  border-color: var(--ds-color-action-primary);
+  outline: 3px solid color-mix(
+    in srgb,
+    var(--ds-color-action-primary) 35%,
+    transparent
+  );
   outline-offset: 1px;
 }
 
@@ -158,7 +162,7 @@
 
 .dropdown__option--active {
   background: var(--ds-color-surface-subtle);
-  outline: 2px solid var(--ds-color-text-default);
+  outline: 2px solid var(--ds-color-action-primary);
   outline-offset: -2px;
 }
 

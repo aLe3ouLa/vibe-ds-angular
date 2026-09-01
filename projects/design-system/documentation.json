@@ -3,12 +3,12 @@
     "interfaces": [
         {
             "name": "DropdownOption",
-            "id": "interface-DropdownOption-99b89dff38a16a5013f18afb9e1812a31c6caae3d05663a3327d799c87e4a70f4f727a169b7da08b214b1104db6580e13a93a7f8dcb7e44141af9a0ab1ebbfaf",
+            "id": "interface-DropdownOption-2616072355369a9aefa548f18b7fc2cb6f1969f2bdc9d2c27694c3d3ab350956886601ef9c9a9d4cbd8120219a91a42a2a3358adb80afdfe2ada8ae731125a5d",
             "file": "projects/design-system/src/lib/dropdown/dropdown.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "interface",
-            "sourceCode": "import {\n  Component,\n  ElementRef,\n  HostListener,\n  Renderer2,\n  computed,\n  effect,\n  forwardRef,\n  inject,\n  input,\n  signal,\n  viewChild,\n} from '@angular/core';\nimport { DOCUMENT } from '@angular/common';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\n\nimport { Tag } from '../tag/tag';\n\nexport interface DropdownOption<T> {\n  value: T;\n  label: string;\n}\n\ntype DropdownSize = 'small' | 'medium' | 'large';\n\nconst TYPEAHEAD_RESET_MS = 500;\n\n@Component({\n  selector: 'ds-dropdown',\n  imports: [Tag],\n  templateUrl: './dropdown.html',\n  styleUrl: './dropdown.scss',\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => Dropdown),\n      multi: true,\n    },\n  ],\n})\nexport class Dropdown<T> implements ControlValueAccessor {\n  readonly options = input.required<DropdownOption<T>[]>();\n  readonly label = input.required<string>();\n  readonly placeholder = input('');\n  readonly multiple = input(false);\n  readonly searchable = input(false);\n  readonly clearable = input(false);\n  readonly size = input<DropdownSize>('medium');\n  readonly disabled = input(false);\n  readonly readonly = input(false);\n  readonly error = input<string | null>(null);\n  readonly hint = input<string | null>(null);\n  readonly autoFocus = input(false);\n\n  readonly ariaLabel = input<string | null>(null);\n  readonly menuAriaLabel = input<string | null>(null);\n  readonly clearAriaLabel = input('Clear selection');\n\n  protected value: T | T[] | null = null;\n  private formDisabled = false;\n  private onChange: (value: T | T[] | null) => void = () => {};\n  private onTouched: () => void = () => {};\n\n  protected readonly isOpen = signal(false);\n  protected readonly activeIndex = signal(-1);\n  protected readonly searchTerm = signal('');\n\n  protected readonly triggerRef =\n    viewChild<ElementRef<HTMLElement>>('trigger');\n  protected readonly listboxRef =\n    viewChild<ElementRef<HTMLElement>>('listbox');\n\n  protected readonly listboxStyle = signal<{\n    top: string;\n    left: string;\n    width: string;\n  } | null>(null);\n\n  protected readonly dropdownId = `ds-dropdown-${crypto.randomUUID()}`;\n  protected readonly listboxId = `${this.dropdownId}-listbox`;\n  protected readonly hintId = `${this.dropdownId}-hint`;\n  protected readonly errorId = `${this.dropdownId}-error`;\n\n  private readonly document = inject(DOCUMENT);\n  private readonly renderer = inject(Renderer2);\n\n  constructor() {\n    /*\n     * Move the listbox to a direct child of <body> once it renders.\n     * A plain child element can get trapped inside an ancestor's\n     * `overflow: hidden`/`auto` (position: absolute) or an ancestor's\n     * `transform` (position: fixed — any transform, even the identity\n     * matrix, creates a new containing block per the CSS spec). Storybook's\n     * own docs-page zoom wrapper does exactly that. Re-parenting to <body>\n     * removes every such ancestor from the equation. Angular tracks this\n     * view by its own internal view refs, not by DOM parentage, so this\n     * is safe to do manually without @angular/cdk's Overlay/portal.\n     */\n    effect(() => {\n      const listbox = this.listboxRef()?.nativeElement;\n\n      if (listbox && listbox.parentElement !== this.document.body) {\n        this.renderer.appendChild(this.document.body, listbox);\n      }\n    });\n  }\n\n  private readonly elementRef = inject(ElementRef<HTMLElement>);\n\n  private typeaheadBuffer = '';\n  private typeaheadTimeout: ReturnType<typeof setTimeout> | null = null;\n\n  protected readonly filteredOptions = computed(() => {\n    const term = this.searchTerm().trim().toLowerCase();\n\n    if (!term) {\n      return this.options();\n    }\n\n    return this.options().filter((option) =>\n      option.label.toLowerCase().includes(term)\n    );\n  });\n\n  protected readonly activeOptionId = computed(() => {\n    const index = this.activeIndex();\n    const opts = this.filteredOptions();\n\n    if (index < 0 || index >= opts.length) {\n      return null;\n    }\n\n    return this.optionId(opts[index]);\n  });\n\n  protected get describedBy(): string | null {\n    if (this.error()) {\n      return this.errorId;\n    }\n\n    if (this.hint()) {\n      return this.hintId;\n    }\n\n    return null;\n  }\n\n  protected get isDisabled(): boolean {\n    return this.disabled() || this.formDisabled;\n  }\n\n  writeValue(value: T | T[] | null): void {\n    this.value = value ?? (this.multiple() ? [] : null);\n  }\n\n  registerOnChange(onChange: (value: T | T[] | null) => void): void {\n    this.onChange = onChange;\n  }\n\n  registerOnTouched(onTouched: () => void): void {\n    this.onTouched = onTouched;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.formDisabled = isDisabled;\n  }\n\n  protected optionId(option: DropdownOption<T>): string {\n    return `${this.dropdownId}-option-${this.options().indexOf(option)}`;\n  }\n\n  protected selectedOptions(): DropdownOption<T>[] {\n    if (this.multiple()) {\n      const values = (this.value as T[] | null) ?? [];\n      return this.options().filter((option) => values.includes(option.value));\n    }\n\n    const value = this.value as T | null;\n\n    if (value === null || value === undefined) {\n      return [];\n    }\n\n    return this.options().filter((option) => option.value === value);\n  }\n\n  protected isSelected(option: DropdownOption<T>): boolean {\n    if (this.multiple()) {\n      return ((this.value as T[] | null) ?? []).includes(option.value);\n    }\n\n    return this.value === option.value;\n  }\n\n  protected hasValue(): boolean {\n    return this.selectedOptions().length > 0;\n  }\n\n  protected triggerLabel(): string {\n    const selected = this.selectedOptions();\n\n    if (selected.length === 0) {\n      return this.placeholder();\n    }\n\n    if (this.multiple()) {\n      return `${selected.length} selected`;\n    }\n\n    return selected[0].label;\n  }\n\n  @HostListener('document:click', ['$event'])\n  protected handleDocumentClick(event: MouseEvent): void {\n    if (!this.isOpen()) {\n      return;\n    }\n\n    if (!this.elementRef.nativeElement.contains(event.target as Node)) {\n      this.close();\n    }\n  }\n\n  protected open(): void {\n    if (this.isDisabled || this.readonly() || this.isOpen()) {\n      return;\n    }\n\n    this.isOpen.set(true);\n    this.updatePosition();\n\n    const opts = this.filteredOptions();\n\n    if (opts.length === 0) {\n      this.activeIndex.set(-1);\n      return;\n    }\n\n    if (!this.multiple() && this.value !== null) {\n      const index = opts.findIndex((option) => option.value === this.value);\n      this.activeIndex.set(index >= 0 ? index : 0);\n    } else {\n      this.activeIndex.set(0);\n    }\n  }\n\n  protected close(): void {\n    this.isOpen.set(false);\n    this.activeIndex.set(-1);\n    this.searchTerm.set('');\n    this.onTouched();\n  }\n\n  @HostListener('window:scroll')\n  @HostListener('window:resize')\n  protected handleViewportChange(): void {\n    if (this.isOpen()) {\n      this.updatePosition();\n    }\n  }\n\n  /**\n   * Positions the listbox with `position: fixed` from the trigger's\n   * viewport coordinates, rather than `position: absolute` relative to\n   * the host. Fixed positioning escapes any ancestor's `overflow: hidden`\n   * or `overflow: auto` (e.g. Storybook's docs-page story preview box),\n   * which absolute positioning does not.\n   */\n  private updatePosition(): void {\n    const trigger = this.triggerRef()?.nativeElement;\n\n    if (!trigger) {\n      return;\n    }\n\n    const rect = trigger.getBoundingClientRect();\n\n    this.listboxStyle.set({\n      top: `${rect.bottom + 4}px`,\n      left: `${rect.left}px`,\n      width: `${rect.width}px`,\n    });\n  }\n\n  protected toggleOpen(): void {\n    if (this.isOpen()) {\n      this.close();\n    } else {\n      this.open();\n    }\n  }\n\n  protected commitActive(): void {\n    const opts = this.filteredOptions();\n    const index = this.activeIndex();\n\n    if (index < 0 || index >= opts.length) {\n      return;\n    }\n\n    this.selectOption(opts[index]);\n  }\n\n  protected selectOption(option: DropdownOption<T>): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    if (this.multiple()) {\n      const current = (this.value as T[] | null) ?? [];\n      const next = current.includes(option.value)\n        ? current.filter((value) => value !== option.value)\n        : [...current, option.value];\n\n      this.value = next;\n      this.onChange(next);\n      return;\n    }\n\n    this.value = option.value;\n    this.onChange(option.value);\n    this.close();\n  }\n\n  protected removeOption(option: DropdownOption<T>): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    const current = (this.value as T[] | null) ?? [];\n    const next = current.filter((value) => value !== option.value);\n\n    this.value = next;\n    this.onChange(next);\n  }\n\n  protected clear(): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    this.value = this.multiple() ? [] : null;\n    this.onChange(this.value);\n  }\n\n  protected handleSearchInput(event: Event): void {\n    const target = event.target as HTMLInputElement;\n    this.searchTerm.set(target.value);\n    this.activeIndex.set(0);\n\n    if (!this.isOpen()) {\n      this.isOpen.set(true);\n    }\n  }\n\n  protected handleTriggerKeydown(event: KeyboardEvent): void {\n    switch (event.key) {\n      case 'ArrowDown':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.moveActive(1);\n        } else {\n          this.open();\n        }\n        break;\n\n      case 'ArrowUp':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.moveActive(-1);\n        } else {\n          this.open();\n        }\n        break;\n\n      case 'Home':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.activeIndex.set(0);\n        }\n        break;\n\n      case 'End':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.activeIndex.set(this.filteredOptions().length - 1);\n        }\n        break;\n\n      case 'Enter':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.commitActive();\n        } else if (!this.searchable()) {\n          this.open();\n        }\n        break;\n\n      case ' ':\n        if (!this.searchable()) {\n          event.preventDefault();\n          if (this.isOpen()) {\n            this.commitActive();\n          } else {\n            this.open();\n          }\n        }\n        break;\n\n      case 'Escape':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.close();\n        }\n        break;\n\n      default:\n        if (!this.searchable() && event.key.length === 1) {\n          this.handleTypeahead(event.key);\n        }\n        break;\n    }\n  }\n\n  private moveActive(delta: number): void {\n    const opts = this.filteredOptions();\n\n    if (opts.length === 0) {\n      return;\n    }\n\n    const next = this.activeIndex() + delta;\n    this.activeIndex.set(Math.min(Math.max(next, 0), opts.length - 1));\n  }\n\n  private handleTypeahead(char: string): void {\n    this.typeaheadBuffer += char.toLowerCase();\n\n    if (this.typeaheadTimeout) {\n      clearTimeout(this.typeaheadTimeout);\n    }\n\n    this.typeaheadTimeout = setTimeout(() => {\n      this.typeaheadBuffer = '';\n    }, TYPEAHEAD_RESET_MS);\n\n    const opts = this.filteredOptions();\n    const matchIndex = opts.findIndex((option) =>\n      option.label.toLowerCase().startsWith(this.typeaheadBuffer)\n    );\n\n    if (matchIndex >= 0) {\n      if (!this.isOpen()) {\n        this.open();\n      }\n      this.activeIndex.set(matchIndex);\n    }\n  }\n}\n",
+            "sourceCode": "import {\n  Component,\n  ElementRef,\n  HostListener,\n  Renderer2,\n  computed,\n  effect,\n  forwardRef,\n  inject,\n  input,\n  signal,\n  viewChild,\n} from '@angular/core';\nimport { DOCUMENT } from '@angular/common';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\n\nimport { Tag } from '../tag/tag';\n\nexport interface DropdownOption<T> {\n  value: T;\n  label: string;\n}\n\ntype DropdownSize = 'small' | 'medium' | 'large';\n\nconst TYPEAHEAD_RESET_MS = 500;\n\n@Component({\n  selector: 'ds-dropdown',\n  imports: [Tag],\n  templateUrl: './dropdown.html',\n  styleUrl: './dropdown.scss',\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => Dropdown),\n      multi: true,\n    },\n  ],\n})\nexport class Dropdown<T> implements ControlValueAccessor {\n  readonly options = input.required<DropdownOption<T>[]>();\n  readonly label = input.required<string>();\n  readonly placeholder = input('');\n  readonly multiple = input(false);\n  readonly searchable = input(false);\n  readonly clearable = input(false);\n  readonly size = input<DropdownSize>('medium');\n  readonly disabled = input(false);\n  readonly readonly = input(false);\n  readonly error = input<string | null>(null);\n  readonly hint = input<string | null>(null);\n  readonly autoFocus = input(false);\n\n  /**\n   * Overrides the trigger's computed accessible name (normally sourced\n   * from `label` via `<label for>`). When set, it must contain the\n   * visible `label` text — per WCAG 2.5.3 Label in Name, a speech-input\n   * user who says the visible label must be able to activate the\n   * control. Prefer leaving this unset and relying on `label` alone\n   * unless the visible label genuinely can't serve as the accessible\n   * name.\n   */\n  readonly ariaLabel = input<string | null>(null);\n  readonly menuAriaLabel = input<string | null>(null);\n  readonly clearAriaLabel = input('Clear selection');\n\n  protected value: T | T[] | null = null;\n  private formDisabled = false;\n  private onChange: (value: T | T[] | null) => void = () => {};\n  private onTouched: () => void = () => {};\n\n  protected readonly isOpen = signal(false);\n  protected readonly activeIndex = signal(-1);\n  protected readonly searchTerm = signal('');\n\n  protected readonly triggerRef =\n    viewChild<ElementRef<HTMLElement>>('trigger');\n  protected readonly listboxRef =\n    viewChild<ElementRef<HTMLElement>>('listbox');\n\n  protected readonly listboxStyle = signal<{\n    top: string;\n    left: string;\n    width: string;\n  } | null>(null);\n\n  protected readonly dropdownId = `ds-dropdown-${crypto.randomUUID()}`;\n  protected readonly listboxId = `${this.dropdownId}-listbox`;\n  protected readonly hintId = `${this.dropdownId}-hint`;\n  protected readonly errorId = `${this.dropdownId}-error`;\n\n  private readonly document = inject(DOCUMENT);\n  private readonly renderer = inject(Renderer2);\n\n  constructor() {\n    /*\n     * Move the listbox to a direct child of <body> once it renders.\n     * A plain child element can get trapped inside an ancestor's\n     * `overflow: hidden`/`auto` (position: absolute) or an ancestor's\n     * `transform` (position: fixed — any transform, even the identity\n     * matrix, creates a new containing block per the CSS spec). Storybook's\n     * own docs-page zoom wrapper does exactly that. Re-parenting to <body>\n     * removes every such ancestor from the equation. Angular tracks this\n     * view by its own internal view refs, not by DOM parentage, so this\n     * is safe to do manually without @angular/cdk's Overlay/portal.\n     */\n    effect(() => {\n      const listbox = this.listboxRef()?.nativeElement;\n\n      if (listbox && listbox.parentElement !== this.document.body) {\n        this.renderer.appendChild(this.document.body, listbox);\n      }\n    });\n  }\n\n  private readonly elementRef = inject(ElementRef<HTMLElement>);\n\n  private typeaheadBuffer = '';\n  private typeaheadTimeout: ReturnType<typeof setTimeout> | null = null;\n\n  protected readonly filteredOptions = computed(() => {\n    const term = this.searchTerm().trim().toLowerCase();\n\n    if (!term) {\n      return this.options();\n    }\n\n    return this.options().filter((option) =>\n      option.label.toLowerCase().includes(term)\n    );\n  });\n\n  protected readonly activeOptionId = computed(() => {\n    const index = this.activeIndex();\n    const opts = this.filteredOptions();\n\n    if (index < 0 || index >= opts.length) {\n      return null;\n    }\n\n    return `${this.dropdownId}-option-${index}`;\n  });\n\n  protected get describedBy(): string | null {\n    if (this.error()) {\n      return this.errorId;\n    }\n\n    if (this.hint()) {\n      return this.hintId;\n    }\n\n    return null;\n  }\n\n  protected get isDisabled(): boolean {\n    return this.disabled() || this.formDisabled;\n  }\n\n  writeValue(value: T | T[] | null): void {\n    this.value = value ?? (this.multiple() ? [] : null);\n  }\n\n  registerOnChange(onChange: (value: T | T[] | null) => void): void {\n    this.onChange = onChange;\n  }\n\n  registerOnTouched(onTouched: () => void): void {\n    this.onTouched = onTouched;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.formDisabled = isDisabled;\n  }\n\n  protected selectedOptions(): DropdownOption<T>[] {\n    if (this.multiple()) {\n      const values = (this.value as T[] | null) ?? [];\n      return this.options().filter((option) => values.includes(option.value));\n    }\n\n    const value = this.value as T | null;\n\n    if (value === null || value === undefined) {\n      return [];\n    }\n\n    return this.options().filter((option) => option.value === value);\n  }\n\n  protected isSelected(option: DropdownOption<T>): boolean {\n    if (this.multiple()) {\n      return ((this.value as T[] | null) ?? []).includes(option.value);\n    }\n\n    return this.value === option.value;\n  }\n\n  protected hasValue(): boolean {\n    return this.selectedOptions().length > 0;\n  }\n\n  protected triggerLabel(): string {\n    const selected = this.selectedOptions();\n\n    if (selected.length === 0) {\n      return this.placeholder();\n    }\n\n    if (this.multiple()) {\n      return `${selected.length} selected`;\n    }\n\n    return selected[0].label;\n  }\n\n  @HostListener('document:click', ['$event'])\n  protected handleDocumentClick(event: MouseEvent): void {\n    if (!this.isOpen()) {\n      return;\n    }\n\n    if (!this.elementRef.nativeElement.contains(event.target as Node)) {\n      this.close();\n    }\n  }\n\n  protected open(): void {\n    if (this.isDisabled || this.readonly() || this.isOpen()) {\n      return;\n    }\n\n    this.isOpen.set(true);\n    this.updatePosition();\n\n    const opts = this.filteredOptions();\n\n    if (opts.length === 0) {\n      this.activeIndex.set(-1);\n      return;\n    }\n\n    if (!this.multiple() && this.value !== null) {\n      const index = opts.findIndex((option) => option.value === this.value);\n      this.activeIndex.set(index >= 0 ? index : 0);\n    } else {\n      this.activeIndex.set(0);\n    }\n  }\n\n  protected close(): void {\n    this.isOpen.set(false);\n    this.activeIndex.set(-1);\n    this.searchTerm.set('');\n    this.onTouched();\n  }\n\n  @HostListener('window:scroll')\n  @HostListener('window:resize')\n  protected handleViewportChange(): void {\n    if (this.isOpen()) {\n      this.updatePosition();\n    }\n  }\n\n  /**\n   * Positions the listbox with `position: fixed` from the trigger's\n   * viewport coordinates, rather than `position: absolute` relative to\n   * the host. Fixed positioning escapes any ancestor's `overflow: hidden`\n   * or `overflow: auto` (e.g. Storybook's docs-page story preview box),\n   * which absolute positioning does not.\n   */\n  private updatePosition(): void {\n    const trigger = this.triggerRef()?.nativeElement;\n\n    if (!trigger) {\n      return;\n    }\n\n    const rect = trigger.getBoundingClientRect();\n\n    this.listboxStyle.set({\n      top: `${rect.bottom + 4}px`,\n      left: `${rect.left}px`,\n      width: `${rect.width}px`,\n    });\n  }\n\n  protected toggleOpen(): void {\n    if (this.isOpen()) {\n      this.close();\n    } else {\n      this.open();\n    }\n  }\n\n  protected commitActive(): void {\n    const opts = this.filteredOptions();\n    const index = this.activeIndex();\n\n    if (index < 0 || index >= opts.length) {\n      return;\n    }\n\n    this.selectOption(opts[index]);\n  }\n\n  protected selectOption(option: DropdownOption<T>): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    if (this.multiple()) {\n      const current = (this.value as T[] | null) ?? [];\n      const next = current.includes(option.value)\n        ? current.filter((value) => value !== option.value)\n        : [...current, option.value];\n\n      this.value = next;\n      this.onChange(next);\n      return;\n    }\n\n    this.value = option.value;\n    this.onChange(option.value);\n    this.close();\n  }\n\n  protected removeOption(option: DropdownOption<T>): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    const current = (this.value as T[] | null) ?? [];\n    const next = current.filter((value) => value !== option.value);\n\n    this.value = next;\n    this.onChange(next);\n  }\n\n  protected clear(): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    this.value = this.multiple() ? [] : null;\n    this.onChange(this.value);\n  }\n\n  protected handleSearchInput(event: Event): void {\n    const target = event.target as HTMLInputElement;\n\n    if (this.isDisabled || this.readonly()) {\n      target.value = this.searchTerm();\n      return;\n    }\n\n    this.searchTerm.set(target.value);\n    this.activeIndex.set(0);\n\n    if (!this.isOpen()) {\n      this.open();\n    }\n  }\n\n  protected handleTriggerKeydown(event: KeyboardEvent): void {\n    switch (event.key) {\n      case 'ArrowDown':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.moveActive(1);\n        } else {\n          this.open();\n        }\n        break;\n\n      case 'ArrowUp':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.moveActive(-1);\n        } else {\n          this.open();\n        }\n        break;\n\n      case 'Home':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.activeIndex.set(0);\n        }\n        break;\n\n      case 'End':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.activeIndex.set(this.filteredOptions().length - 1);\n        }\n        break;\n\n      case 'Enter':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.commitActive();\n        } else if (!this.searchable()) {\n          this.open();\n        }\n        break;\n\n      case ' ':\n        if (!this.searchable()) {\n          event.preventDefault();\n          if (this.isOpen()) {\n            this.commitActive();\n          } else {\n            this.open();\n          }\n        }\n        break;\n\n      case 'Escape':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.close();\n        }\n        break;\n\n      default:\n        if (!this.searchable() && event.key.length === 1) {\n          this.handleTypeahead(event.key);\n        }\n        break;\n    }\n  }\n\n  private moveActive(delta: number): void {\n    const opts = this.filteredOptions();\n\n    if (opts.length === 0) {\n      return;\n    }\n\n    const next = this.activeIndex() + delta;\n    this.activeIndex.set(Math.min(Math.max(next, 0), opts.length - 1));\n  }\n\n  private handleTypeahead(char: string): void {\n    this.typeaheadBuffer += char.toLowerCase();\n\n    if (this.typeaheadTimeout) {\n      clearTimeout(this.typeaheadTimeout);\n    }\n\n    this.typeaheadTimeout = setTimeout(() => {\n      this.typeaheadBuffer = '';\n    }, TYPEAHEAD_RESET_MS);\n\n    const opts = this.filteredOptions();\n    const matchIndex = opts.findIndex((option) =>\n      option.label.toLowerCase().startsWith(this.typeaheadBuffer)\n    );\n\n    if (matchIndex >= 0) {\n      if (!this.isOpen()) {\n        this.open();\n      }\n      this.activeIndex.set(matchIndex);\n    }\n  }\n}\n",
             "displayName": "DropdownOption<T>",
             "typeParameters": [
                 "T"
@@ -454,7 +454,7 @@
         },
         {
             "name": "Dropdown",
-            "id": "component-Dropdown-99b89dff38a16a5013f18afb9e1812a31c6caae3d05663a3327d799c87e4a70f4f727a169b7da08b214b1104db6580e13a93a7f8dcb7e44141af9a0ab1ebbfaf",
+            "id": "component-Dropdown-2616072355369a9aefa548f18b7fc2cb6f1969f2bdc9d2c27694c3d3ab350956886601ef9c9a9d4cbd8120219a91a42a2a3358adb80afdfe2ada8ae731125a5d",
             "file": "projects/design-system/src/lib/dropdown/dropdown.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -487,9 +487,9 @@
                     "type": "string | null",
                     "indexKey": "",
                     "optional": false,
-                    "description": "",
-                    "line": 55,
-                    "rawdescription": "\n",
+                    "description": "<p>Overrides the trigger&#39;s computed accessible name (normally sourced\nfrom <code>label</code> via <code>&lt;label for&gt;</code>). When set, it must contain the\nvisible <code>label</code> text — per WCAG 2.5.3 Label in Name, a speech-input\nuser who says the visible label must be able to activate the\ncontrol. Prefer leaving this unset and relying on <code>label</code> alone\nunless the visible label genuinely can&#39;t serve as the accessible\nname.</p>\n",
+                    "line": 64,
+                    "rawdescription": "\n\nOverrides the trigger's computed accessible name (normally sourced\nfrom `label` via `<label for>`). When set, it must contain the\nvisible `label` text — per WCAG 2.5.3 Label in Name, a speech-input\nuser who says the visible label must be able to activate the\ncontrol. Prefer leaving this unset and relying on `label` alone\nunless the visible label genuinely can't serve as the accessible\nname.\n",
                     "modifierKind": [
                         148
                     ],
@@ -539,7 +539,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 57,
+                    "line": 66,
                     "rawdescription": "\n",
                     "modifierKind": [
                         148
@@ -623,7 +623,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 56,
+                    "line": 65,
                     "rawdescription": "\n",
                     "modifierKind": [
                         148
@@ -744,7 +744,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 65,
+                    "line": 74,
                     "rawdescription": "\n",
                     "modifierKind": [
                         124,
@@ -754,14 +754,14 @@
                 {
                     "name": "activeOptionId",
                     "coverageIgnore": false,
-                    "defaultValue": "computed(() => {\n    const index = this.activeIndex();\n    const opts = this.filteredOptions();\n\n    if (index < 0 || index >= opts.length) {\n      return null;\n    }\n\n    return this.optionId(opts[index]);\n  })",
+                    "defaultValue": "computed(() => {\n    const index = this.activeIndex();\n    const opts = this.filteredOptions();\n\n    if (index < 0 || index >= opts.length) {\n      return null;\n    }\n\n    return `${this.dropdownId}-option-${index}`;\n  })",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "unknown",
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 125,
+                    "line": 134,
                     "rawdescription": "\n",
                     "modifierKind": [
                         124,
@@ -778,7 +778,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 84,
+                    "line": 93,
                     "rawdescription": "\n",
                     "modifierKind": [
                         123,
@@ -795,7 +795,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 79,
+                    "line": 88,
                     "rawdescription": "\n",
                     "modifierKind": [
                         124,
@@ -812,7 +812,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 108,
+                    "line": 117,
                     "rawdescription": "\n",
                     "modifierKind": [
                         123,
@@ -829,7 +829,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 82,
+                    "line": 91,
                     "rawdescription": "\n",
                     "modifierKind": [
                         124,
@@ -846,7 +846,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 113,
+                    "line": 122,
                     "rawdescription": "\n",
                     "modifierKind": [
                         124,
@@ -863,7 +863,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 60,
+                    "line": 69,
                     "rawdescription": "\n",
                     "modifierKind": [
                         123
@@ -879,7 +879,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 81,
+                    "line": 90,
                     "rawdescription": "\n",
                     "modifierKind": [
                         124,
@@ -896,7 +896,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 64,
+                    "line": 73,
                     "rawdescription": "\n",
                     "modifierKind": [
                         124,
@@ -913,7 +913,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 80,
+                    "line": 89,
                     "rawdescription": "\n",
                     "modifierKind": [
                         124,
@@ -930,7 +930,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 70,
+                    "line": 79,
                     "rawdescription": "\n",
                     "modifierKind": [
                         124,
@@ -947,7 +947,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 73,
+                    "line": 82,
                     "rawdescription": "\n",
                     "modifierKind": [
                         124,
@@ -964,7 +964,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 61,
+                    "line": 70,
                     "rawdescription": "\n",
                     "modifierKind": [
                         123
@@ -980,7 +980,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 62,
+                    "line": 71,
                     "rawdescription": "\n",
                     "modifierKind": [
                         123
@@ -996,7 +996,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 85,
+                    "line": 94,
                     "rawdescription": "\n",
                     "modifierKind": [
                         123,
@@ -1013,7 +1013,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 66,
+                    "line": 75,
                     "rawdescription": "\n",
                     "modifierKind": [
                         124,
@@ -1030,7 +1030,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 68,
+                    "line": 77,
                     "rawdescription": "\n",
                     "modifierKind": [
                         124,
@@ -1047,7 +1047,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 110,
+                    "line": 119,
                     "rawdescription": "\n",
                     "modifierKind": [
                         123
@@ -1063,7 +1063,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 111,
+                    "line": 120,
                     "rawdescription": "\n",
                     "modifierKind": [
                         123
@@ -1079,7 +1079,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 59,
+                    "line": 68,
                     "rawdescription": "\n",
                     "modifierKind": [
                         124
@@ -1094,7 +1094,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 337,
+                    "line": 342,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1110,7 +1110,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 247,
+                    "line": 252,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1126,7 +1126,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 293,
+                    "line": 298,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1151,7 +1151,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 214,
+                    "line": 219,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1196,7 +1196,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 346,
+                    "line": 351,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1234,7 +1234,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 356,
+                    "line": 367,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1272,7 +1272,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 436,
+                    "line": 447,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1301,7 +1301,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 256,
+                    "line": 261,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1329,7 +1329,7 @@
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 195,
+                    "line": 200,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1354,7 +1354,7 @@
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 187,
+                    "line": 192,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1392,7 +1392,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 425,
+                    "line": 436,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1421,51 +1421,13 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 224,
+                    "line": 229,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
                     "description": "",
                     "modifierKind": [
                         124
-                    ]
-                },
-                {
-                    "name": "optionId",
-                    "coverageIgnore": false,
-                    "args": [
-                        {
-                            "name": "option",
-                            "type": "DropdownOption<T>",
-                            "optional": false,
-                            "dotDotDotToken": false,
-                            "deprecated": false,
-                            "deprecationMessage": ""
-                        }
-                    ],
-                    "optional": false,
-                    "returnType": "string",
-                    "typeParameters": [],
-                    "line": 168,
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "rawdescription": "\n",
-                    "description": "",
-                    "modifierKind": [
-                        124
-                    ],
-                    "jsdoctags": [
-                        {
-                            "name": "option",
-                            "type": "DropdownOption<T>",
-                            "optional": false,
-                            "dotDotDotToken": false,
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        }
                     ]
                 },
                 {
@@ -1494,7 +1456,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 156,
+                    "line": 165,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1540,7 +1502,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 160,
+                    "line": 169,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1576,7 +1538,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 325,
+                    "line": 330,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1605,7 +1567,7 @@
                     "optional": false,
                     "returnType": "DropdownOption[]",
                     "typeParameters": [],
-                    "line": 172,
+                    "line": 177,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1630,7 +1592,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 304,
+                    "line": 309,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1668,7 +1630,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 164,
+                    "line": 173,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1694,7 +1656,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 285,
+                    "line": 290,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1710,7 +1672,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 199,
+                    "line": 204,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1726,7 +1688,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 269,
+                    "line": 274,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n\nPositions the listbox with `position: fixed` from the trigger's\nviewport coordinates, rather than `position: absolute` relative to\nthe host. Fixed positioning escapes any ancestor's `overflow: hidden`\nor `overflow: auto` (e.g. Storybook's docs-page story preview box),\nwhich absolute positioning does not.\n",
@@ -1751,7 +1713,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 152,
+                    "line": 161,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "\n",
@@ -1794,7 +1756,7 @@
                     ],
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 214
+                    "line": 219
                 },
                 {
                     "coverageIgnore": false,
@@ -1803,7 +1765,7 @@
                     "argsDecorator": [],
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 256
+                    "line": 261
                 },
                 {
                     "coverageIgnore": false,
@@ -1812,7 +1774,7 @@
                     "argsDecorator": [],
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 256
+                    "line": 261
                 }
             ],
             "standalone": true,
@@ -1824,7 +1786,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import {\n  Component,\n  ElementRef,\n  HostListener,\n  Renderer2,\n  computed,\n  effect,\n  forwardRef,\n  inject,\n  input,\n  signal,\n  viewChild,\n} from '@angular/core';\nimport { DOCUMENT } from '@angular/common';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\n\nimport { Tag } from '../tag/tag';\n\nexport interface DropdownOption<T> {\n  value: T;\n  label: string;\n}\n\ntype DropdownSize = 'small' | 'medium' | 'large';\n\nconst TYPEAHEAD_RESET_MS = 500;\n\n@Component({\n  selector: 'ds-dropdown',\n  imports: [Tag],\n  templateUrl: './dropdown.html',\n  styleUrl: './dropdown.scss',\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => Dropdown),\n      multi: true,\n    },\n  ],\n})\nexport class Dropdown<T> implements ControlValueAccessor {\n  readonly options = input.required<DropdownOption<T>[]>();\n  readonly label = input.required<string>();\n  readonly placeholder = input('');\n  readonly multiple = input(false);\n  readonly searchable = input(false);\n  readonly clearable = input(false);\n  readonly size = input<DropdownSize>('medium');\n  readonly disabled = input(false);\n  readonly readonly = input(false);\n  readonly error = input<string | null>(null);\n  readonly hint = input<string | null>(null);\n  readonly autoFocus = input(false);\n\n  readonly ariaLabel = input<string | null>(null);\n  readonly menuAriaLabel = input<string | null>(null);\n  readonly clearAriaLabel = input('Clear selection');\n\n  protected value: T | T[] | null = null;\n  private formDisabled = false;\n  private onChange: (value: T | T[] | null) => void = () => {};\n  private onTouched: () => void = () => {};\n\n  protected readonly isOpen = signal(false);\n  protected readonly activeIndex = signal(-1);\n  protected readonly searchTerm = signal('');\n\n  protected readonly triggerRef =\n    viewChild<ElementRef<HTMLElement>>('trigger');\n  protected readonly listboxRef =\n    viewChild<ElementRef<HTMLElement>>('listbox');\n\n  protected readonly listboxStyle = signal<{\n    top: string;\n    left: string;\n    width: string;\n  } | null>(null);\n\n  protected readonly dropdownId = `ds-dropdown-${crypto.randomUUID()}`;\n  protected readonly listboxId = `${this.dropdownId}-listbox`;\n  protected readonly hintId = `${this.dropdownId}-hint`;\n  protected readonly errorId = `${this.dropdownId}-error`;\n\n  private readonly document = inject(DOCUMENT);\n  private readonly renderer = inject(Renderer2);\n\n  constructor() {\n    /*\n     * Move the listbox to a direct child of <body> once it renders.\n     * A plain child element can get trapped inside an ancestor's\n     * `overflow: hidden`/`auto` (position: absolute) or an ancestor's\n     * `transform` (position: fixed — any transform, even the identity\n     * matrix, creates a new containing block per the CSS spec). Storybook's\n     * own docs-page zoom wrapper does exactly that. Re-parenting to <body>\n     * removes every such ancestor from the equation. Angular tracks this\n     * view by its own internal view refs, not by DOM parentage, so this\n     * is safe to do manually without @angular/cdk's Overlay/portal.\n     */\n    effect(() => {\n      const listbox = this.listboxRef()?.nativeElement;\n\n      if (listbox && listbox.parentElement !== this.document.body) {\n        this.renderer.appendChild(this.document.body, listbox);\n      }\n    });\n  }\n\n  private readonly elementRef = inject(ElementRef<HTMLElement>);\n\n  private typeaheadBuffer = '';\n  private typeaheadTimeout: ReturnType<typeof setTimeout> | null = null;\n\n  protected readonly filteredOptions = computed(() => {\n    const term = this.searchTerm().trim().toLowerCase();\n\n    if (!term) {\n      return this.options();\n    }\n\n    return this.options().filter((option) =>\n      option.label.toLowerCase().includes(term)\n    );\n  });\n\n  protected readonly activeOptionId = computed(() => {\n    const index = this.activeIndex();\n    const opts = this.filteredOptions();\n\n    if (index < 0 || index >= opts.length) {\n      return null;\n    }\n\n    return this.optionId(opts[index]);\n  });\n\n  protected get describedBy(): string | null {\n    if (this.error()) {\n      return this.errorId;\n    }\n\n    if (this.hint()) {\n      return this.hintId;\n    }\n\n    return null;\n  }\n\n  protected get isDisabled(): boolean {\n    return this.disabled() || this.formDisabled;\n  }\n\n  writeValue(value: T | T[] | null): void {\n    this.value = value ?? (this.multiple() ? [] : null);\n  }\n\n  registerOnChange(onChange: (value: T | T[] | null) => void): void {\n    this.onChange = onChange;\n  }\n\n  registerOnTouched(onTouched: () => void): void {\n    this.onTouched = onTouched;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.formDisabled = isDisabled;\n  }\n\n  protected optionId(option: DropdownOption<T>): string {\n    return `${this.dropdownId}-option-${this.options().indexOf(option)}`;\n  }\n\n  protected selectedOptions(): DropdownOption<T>[] {\n    if (this.multiple()) {\n      const values = (this.value as T[] | null) ?? [];\n      return this.options().filter((option) => values.includes(option.value));\n    }\n\n    const value = this.value as T | null;\n\n    if (value === null || value === undefined) {\n      return [];\n    }\n\n    return this.options().filter((option) => option.value === value);\n  }\n\n  protected isSelected(option: DropdownOption<T>): boolean {\n    if (this.multiple()) {\n      return ((this.value as T[] | null) ?? []).includes(option.value);\n    }\n\n    return this.value === option.value;\n  }\n\n  protected hasValue(): boolean {\n    return this.selectedOptions().length > 0;\n  }\n\n  protected triggerLabel(): string {\n    const selected = this.selectedOptions();\n\n    if (selected.length === 0) {\n      return this.placeholder();\n    }\n\n    if (this.multiple()) {\n      return `${selected.length} selected`;\n    }\n\n    return selected[0].label;\n  }\n\n  @HostListener('document:click', ['$event'])\n  protected handleDocumentClick(event: MouseEvent): void {\n    if (!this.isOpen()) {\n      return;\n    }\n\n    if (!this.elementRef.nativeElement.contains(event.target as Node)) {\n      this.close();\n    }\n  }\n\n  protected open(): void {\n    if (this.isDisabled || this.readonly() || this.isOpen()) {\n      return;\n    }\n\n    this.isOpen.set(true);\n    this.updatePosition();\n\n    const opts = this.filteredOptions();\n\n    if (opts.length === 0) {\n      this.activeIndex.set(-1);\n      return;\n    }\n\n    if (!this.multiple() && this.value !== null) {\n      const index = opts.findIndex((option) => option.value === this.value);\n      this.activeIndex.set(index >= 0 ? index : 0);\n    } else {\n      this.activeIndex.set(0);\n    }\n  }\n\n  protected close(): void {\n    this.isOpen.set(false);\n    this.activeIndex.set(-1);\n    this.searchTerm.set('');\n    this.onTouched();\n  }\n\n  @HostListener('window:scroll')\n  @HostListener('window:resize')\n  protected handleViewportChange(): void {\n    if (this.isOpen()) {\n      this.updatePosition();\n    }\n  }\n\n  /**\n   * Positions the listbox with `position: fixed` from the trigger's\n   * viewport coordinates, rather than `position: absolute` relative to\n   * the host. Fixed positioning escapes any ancestor's `overflow: hidden`\n   * or `overflow: auto` (e.g. Storybook's docs-page story preview box),\n   * which absolute positioning does not.\n   */\n  private updatePosition(): void {\n    const trigger = this.triggerRef()?.nativeElement;\n\n    if (!trigger) {\n      return;\n    }\n\n    const rect = trigger.getBoundingClientRect();\n\n    this.listboxStyle.set({\n      top: `${rect.bottom + 4}px`,\n      left: `${rect.left}px`,\n      width: `${rect.width}px`,\n    });\n  }\n\n  protected toggleOpen(): void {\n    if (this.isOpen()) {\n      this.close();\n    } else {\n      this.open();\n    }\n  }\n\n  protected commitActive(): void {\n    const opts = this.filteredOptions();\n    const index = this.activeIndex();\n\n    if (index < 0 || index >= opts.length) {\n      return;\n    }\n\n    this.selectOption(opts[index]);\n  }\n\n  protected selectOption(option: DropdownOption<T>): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    if (this.multiple()) {\n      const current = (this.value as T[] | null) ?? [];\n      const next = current.includes(option.value)\n        ? current.filter((value) => value !== option.value)\n        : [...current, option.value];\n\n      this.value = next;\n      this.onChange(next);\n      return;\n    }\n\n    this.value = option.value;\n    this.onChange(option.value);\n    this.close();\n  }\n\n  protected removeOption(option: DropdownOption<T>): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    const current = (this.value as T[] | null) ?? [];\n    const next = current.filter((value) => value !== option.value);\n\n    this.value = next;\n    this.onChange(next);\n  }\n\n  protected clear(): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    this.value = this.multiple() ? [] : null;\n    this.onChange(this.value);\n  }\n\n  protected handleSearchInput(event: Event): void {\n    const target = event.target as HTMLInputElement;\n    this.searchTerm.set(target.value);\n    this.activeIndex.set(0);\n\n    if (!this.isOpen()) {\n      this.isOpen.set(true);\n    }\n  }\n\n  protected handleTriggerKeydown(event: KeyboardEvent): void {\n    switch (event.key) {\n      case 'ArrowDown':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.moveActive(1);\n        } else {\n          this.open();\n        }\n        break;\n\n      case 'ArrowUp':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.moveActive(-1);\n        } else {\n          this.open();\n        }\n        break;\n\n      case 'Home':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.activeIndex.set(0);\n        }\n        break;\n\n      case 'End':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.activeIndex.set(this.filteredOptions().length - 1);\n        }\n        break;\n\n      case 'Enter':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.commitActive();\n        } else if (!this.searchable()) {\n          this.open();\n        }\n        break;\n\n      case ' ':\n        if (!this.searchable()) {\n          event.preventDefault();\n          if (this.isOpen()) {\n            this.commitActive();\n          } else {\n            this.open();\n          }\n        }\n        break;\n\n      case 'Escape':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.close();\n        }\n        break;\n\n      default:\n        if (!this.searchable() && event.key.length === 1) {\n          this.handleTypeahead(event.key);\n        }\n        break;\n    }\n  }\n\n  private moveActive(delta: number): void {\n    const opts = this.filteredOptions();\n\n    if (opts.length === 0) {\n      return;\n    }\n\n    const next = this.activeIndex() + delta;\n    this.activeIndex.set(Math.min(Math.max(next, 0), opts.length - 1));\n  }\n\n  private handleTypeahead(char: string): void {\n    this.typeaheadBuffer += char.toLowerCase();\n\n    if (this.typeaheadTimeout) {\n      clearTimeout(this.typeaheadTimeout);\n    }\n\n    this.typeaheadTimeout = setTimeout(() => {\n      this.typeaheadBuffer = '';\n    }, TYPEAHEAD_RESET_MS);\n\n    const opts = this.filteredOptions();\n    const matchIndex = opts.findIndex((option) =>\n      option.label.toLowerCase().startsWith(this.typeaheadBuffer)\n    );\n\n    if (matchIndex >= 0) {\n      if (!this.isOpen()) {\n        this.open();\n      }\n      this.activeIndex.set(matchIndex);\n    }\n  }\n}\n",
+            "sourceCode": "import {\n  Component,\n  ElementRef,\n  HostListener,\n  Renderer2,\n  computed,\n  effect,\n  forwardRef,\n  inject,\n  input,\n  signal,\n  viewChild,\n} from '@angular/core';\nimport { DOCUMENT } from '@angular/common';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\n\nimport { Tag } from '../tag/tag';\n\nexport interface DropdownOption<T> {\n  value: T;\n  label: string;\n}\n\ntype DropdownSize = 'small' | 'medium' | 'large';\n\nconst TYPEAHEAD_RESET_MS = 500;\n\n@Component({\n  selector: 'ds-dropdown',\n  imports: [Tag],\n  templateUrl: './dropdown.html',\n  styleUrl: './dropdown.scss',\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => Dropdown),\n      multi: true,\n    },\n  ],\n})\nexport class Dropdown<T> implements ControlValueAccessor {\n  readonly options = input.required<DropdownOption<T>[]>();\n  readonly label = input.required<string>();\n  readonly placeholder = input('');\n  readonly multiple = input(false);\n  readonly searchable = input(false);\n  readonly clearable = input(false);\n  readonly size = input<DropdownSize>('medium');\n  readonly disabled = input(false);\n  readonly readonly = input(false);\n  readonly error = input<string | null>(null);\n  readonly hint = input<string | null>(null);\n  readonly autoFocus = input(false);\n\n  /**\n   * Overrides the trigger's computed accessible name (normally sourced\n   * from `label` via `<label for>`). When set, it must contain the\n   * visible `label` text — per WCAG 2.5.3 Label in Name, a speech-input\n   * user who says the visible label must be able to activate the\n   * control. Prefer leaving this unset and relying on `label` alone\n   * unless the visible label genuinely can't serve as the accessible\n   * name.\n   */\n  readonly ariaLabel = input<string | null>(null);\n  readonly menuAriaLabel = input<string | null>(null);\n  readonly clearAriaLabel = input('Clear selection');\n\n  protected value: T | T[] | null = null;\n  private formDisabled = false;\n  private onChange: (value: T | T[] | null) => void = () => {};\n  private onTouched: () => void = () => {};\n\n  protected readonly isOpen = signal(false);\n  protected readonly activeIndex = signal(-1);\n  protected readonly searchTerm = signal('');\n\n  protected readonly triggerRef =\n    viewChild<ElementRef<HTMLElement>>('trigger');\n  protected readonly listboxRef =\n    viewChild<ElementRef<HTMLElement>>('listbox');\n\n  protected readonly listboxStyle = signal<{\n    top: string;\n    left: string;\n    width: string;\n  } | null>(null);\n\n  protected readonly dropdownId = `ds-dropdown-${crypto.randomUUID()}`;\n  protected readonly listboxId = `${this.dropdownId}-listbox`;\n  protected readonly hintId = `${this.dropdownId}-hint`;\n  protected readonly errorId = `${this.dropdownId}-error`;\n\n  private readonly document = inject(DOCUMENT);\n  private readonly renderer = inject(Renderer2);\n\n  constructor() {\n    /*\n     * Move the listbox to a direct child of <body> once it renders.\n     * A plain child element can get trapped inside an ancestor's\n     * `overflow: hidden`/`auto` (position: absolute) or an ancestor's\n     * `transform` (position: fixed — any transform, even the identity\n     * matrix, creates a new containing block per the CSS spec). Storybook's\n     * own docs-page zoom wrapper does exactly that. Re-parenting to <body>\n     * removes every such ancestor from the equation. Angular tracks this\n     * view by its own internal view refs, not by DOM parentage, so this\n     * is safe to do manually without @angular/cdk's Overlay/portal.\n     */\n    effect(() => {\n      const listbox = this.listboxRef()?.nativeElement;\n\n      if (listbox && listbox.parentElement !== this.document.body) {\n        this.renderer.appendChild(this.document.body, listbox);\n      }\n    });\n  }\n\n  private readonly elementRef = inject(ElementRef<HTMLElement>);\n\n  private typeaheadBuffer = '';\n  private typeaheadTimeout: ReturnType<typeof setTimeout> | null = null;\n\n  protected readonly filteredOptions = computed(() => {\n    const term = this.searchTerm().trim().toLowerCase();\n\n    if (!term) {\n      return this.options();\n    }\n\n    return this.options().filter((option) =>\n      option.label.toLowerCase().includes(term)\n    );\n  });\n\n  protected readonly activeOptionId = computed(() => {\n    const index = this.activeIndex();\n    const opts = this.filteredOptions();\n\n    if (index < 0 || index >= opts.length) {\n      return null;\n    }\n\n    return `${this.dropdownId}-option-${index}`;\n  });\n\n  protected get describedBy(): string | null {\n    if (this.error()) {\n      return this.errorId;\n    }\n\n    if (this.hint()) {\n      return this.hintId;\n    }\n\n    return null;\n  }\n\n  protected get isDisabled(): boolean {\n    return this.disabled() || this.formDisabled;\n  }\n\n  writeValue(value: T | T[] | null): void {\n    this.value = value ?? (this.multiple() ? [] : null);\n  }\n\n  registerOnChange(onChange: (value: T | T[] | null) => void): void {\n    this.onChange = onChange;\n  }\n\n  registerOnTouched(onTouched: () => void): void {\n    this.onTouched = onTouched;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.formDisabled = isDisabled;\n  }\n\n  protected selectedOptions(): DropdownOption<T>[] {\n    if (this.multiple()) {\n      const values = (this.value as T[] | null) ?? [];\n      return this.options().filter((option) => values.includes(option.value));\n    }\n\n    const value = this.value as T | null;\n\n    if (value === null || value === undefined) {\n      return [];\n    }\n\n    return this.options().filter((option) => option.value === value);\n  }\n\n  protected isSelected(option: DropdownOption<T>): boolean {\n    if (this.multiple()) {\n      return ((this.value as T[] | null) ?? []).includes(option.value);\n    }\n\n    return this.value === option.value;\n  }\n\n  protected hasValue(): boolean {\n    return this.selectedOptions().length > 0;\n  }\n\n  protected triggerLabel(): string {\n    const selected = this.selectedOptions();\n\n    if (selected.length === 0) {\n      return this.placeholder();\n    }\n\n    if (this.multiple()) {\n      return `${selected.length} selected`;\n    }\n\n    return selected[0].label;\n  }\n\n  @HostListener('document:click', ['$event'])\n  protected handleDocumentClick(event: MouseEvent): void {\n    if (!this.isOpen()) {\n      return;\n    }\n\n    if (!this.elementRef.nativeElement.contains(event.target as Node)) {\n      this.close();\n    }\n  }\n\n  protected open(): void {\n    if (this.isDisabled || this.readonly() || this.isOpen()) {\n      return;\n    }\n\n    this.isOpen.set(true);\n    this.updatePosition();\n\n    const opts = this.filteredOptions();\n\n    if (opts.length === 0) {\n      this.activeIndex.set(-1);\n      return;\n    }\n\n    if (!this.multiple() && this.value !== null) {\n      const index = opts.findIndex((option) => option.value === this.value);\n      this.activeIndex.set(index >= 0 ? index : 0);\n    } else {\n      this.activeIndex.set(0);\n    }\n  }\n\n  protected close(): void {\n    this.isOpen.set(false);\n    this.activeIndex.set(-1);\n    this.searchTerm.set('');\n    this.onTouched();\n  }\n\n  @HostListener('window:scroll')\n  @HostListener('window:resize')\n  protected handleViewportChange(): void {\n    if (this.isOpen()) {\n      this.updatePosition();\n    }\n  }\n\n  /**\n   * Positions the listbox with `position: fixed` from the trigger's\n   * viewport coordinates, rather than `position: absolute` relative to\n   * the host. Fixed positioning escapes any ancestor's `overflow: hidden`\n   * or `overflow: auto` (e.g. Storybook's docs-page story preview box),\n   * which absolute positioning does not.\n   */\n  private updatePosition(): void {\n    const trigger = this.triggerRef()?.nativeElement;\n\n    if (!trigger) {\n      return;\n    }\n\n    const rect = trigger.getBoundingClientRect();\n\n    this.listboxStyle.set({\n      top: `${rect.bottom + 4}px`,\n      left: `${rect.left}px`,\n      width: `${rect.width}px`,\n    });\n  }\n\n  protected toggleOpen(): void {\n    if (this.isOpen()) {\n      this.close();\n    } else {\n      this.open();\n    }\n  }\n\n  protected commitActive(): void {\n    const opts = this.filteredOptions();\n    const index = this.activeIndex();\n\n    if (index < 0 || index >= opts.length) {\n      return;\n    }\n\n    this.selectOption(opts[index]);\n  }\n\n  protected selectOption(option: DropdownOption<T>): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    if (this.multiple()) {\n      const current = (this.value as T[] | null) ?? [];\n      const next = current.includes(option.value)\n        ? current.filter((value) => value !== option.value)\n        : [...current, option.value];\n\n      this.value = next;\n      this.onChange(next);\n      return;\n    }\n\n    this.value = option.value;\n    this.onChange(option.value);\n    this.close();\n  }\n\n  protected removeOption(option: DropdownOption<T>): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    const current = (this.value as T[] | null) ?? [];\n    const next = current.filter((value) => value !== option.value);\n\n    this.value = next;\n    this.onChange(next);\n  }\n\n  protected clear(): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    this.value = this.multiple() ? [] : null;\n    this.onChange(this.value);\n  }\n\n  protected handleSearchInput(event: Event): void {\n    const target = event.target as HTMLInputElement;\n\n    if (this.isDisabled || this.readonly()) {\n      target.value = this.searchTerm();\n      return;\n    }\n\n    this.searchTerm.set(target.value);\n    this.activeIndex.set(0);\n\n    if (!this.isOpen()) {\n      this.open();\n    }\n  }\n\n  protected handleTriggerKeydown(event: KeyboardEvent): void {\n    switch (event.key) {\n      case 'ArrowDown':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.moveActive(1);\n        } else {\n          this.open();\n        }\n        break;\n\n      case 'ArrowUp':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.moveActive(-1);\n        } else {\n          this.open();\n        }\n        break;\n\n      case 'Home':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.activeIndex.set(0);\n        }\n        break;\n\n      case 'End':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.activeIndex.set(this.filteredOptions().length - 1);\n        }\n        break;\n\n      case 'Enter':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.commitActive();\n        } else if (!this.searchable()) {\n          this.open();\n        }\n        break;\n\n      case ' ':\n        if (!this.searchable()) {\n          event.preventDefault();\n          if (this.isOpen()) {\n            this.commitActive();\n          } else {\n            this.open();\n          }\n        }\n        break;\n\n      case 'Escape':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.close();\n        }\n        break;\n\n      default:\n        if (!this.searchable() && event.key.length === 1) {\n          this.handleTypeahead(event.key);\n        }\n        break;\n    }\n  }\n\n  private moveActive(delta: number): void {\n    const opts = this.filteredOptions();\n\n    if (opts.length === 0) {\n      return;\n    }\n\n    const next = this.activeIndex() + delta;\n    this.activeIndex.set(Math.min(Math.max(next, 0), opts.length - 1));\n  }\n\n  private handleTypeahead(char: string): void {\n    this.typeaheadBuffer += char.toLowerCase();\n\n    if (this.typeaheadTimeout) {\n      clearTimeout(this.typeaheadTimeout);\n    }\n\n    this.typeaheadTimeout = setTimeout(() => {\n      this.typeaheadBuffer = '';\n    }, TYPEAHEAD_RESET_MS);\n\n    const opts = this.filteredOptions();\n    const matchIndex = opts.findIndex((option) =>\n      option.label.toLowerCase().startsWith(this.typeaheadBuffer)\n    );\n\n    if (matchIndex >= 0) {\n      if (!this.isOpen()) {\n        this.open();\n      }\n      this.activeIndex.set(matchIndex);\n    }\n  }\n}\n",
             "styleUrl": "./dropdown.scss",
             "assetsDirs": [],
             "styleUrlsData": [
@@ -1840,7 +1802,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "args": [],
-                "line": 85,
+                "line": 94,
                 "rawdescription": "\n"
             },
             "extends": [],
@@ -1854,7 +1816,7 @@
                         "name": "describedBy",
                         "type": "unknown",
                         "returnType": "string | null",
-                        "line": 136,
+                        "line": 145,
                         "rawdescription": "\n",
                         "description": ""
                     }
@@ -1865,7 +1827,7 @@
                         "name": "isDisabled",
                         "type": "boolean",
                         "returnType": "boolean",
-                        "line": 148,
+                        "line": 157,
                         "rawdescription": "\n",
                         "description": ""
                     }
@@ -1888,7 +1850,7 @@
                     }
                 ]
             },
-            "templateData": "<div class=\"dropdown\" (keydown)=\"handleTriggerKeydown($event)\">\n  <label class=\"dropdown__label\" [for]=\"dropdownId\">{{ label() }}</label>\n\n  @if (multiple() && selectedOptions().length > 0) {\n    <div class=\"dropdown__chips\">\n      @for (option of selectedOptions(); track option.value) {\n        <ds-tag\n          [dismissible]=\"!isDisabled && !readonly()\"\n          [dismissLabel]=\"'Remove ' + option.label\"\n          (dismissed)=\"removeOption(option)\"\n        >\n          {{ option.label }}\n        </ds-tag>\n      }\n    </div>\n  }\n\n  <div\n    class=\"dropdown__trigger-row\"\n    [class.dropdown__trigger-row--small]=\"size() === 'small'\"\n    [class.dropdown__trigger-row--large]=\"size() === 'large'\"\n    [class.dropdown__trigger-row--error]=\"!!error()\"\n    [class.dropdown__trigger-row--disabled]=\"isDisabled\"\n  >\n    @if (searchable()) {\n      <input\n        #trigger\n        class=\"dropdown__trigger dropdown__trigger--input\"\n        type=\"text\"\n        role=\"combobox\"\n        [id]=\"dropdownId\"\n        [value]=\"searchTerm()\"\n        [placeholder]=\"hasValue() ? triggerLabel() : placeholder()\"\n        [disabled]=\"isDisabled\"\n        [autofocus]=\"autoFocus()\"\n        [attr.aria-label]=\"ariaLabel()\"\n        [attr.aria-expanded]=\"isOpen()\"\n        [attr.aria-controls]=\"listboxId\"\n        [attr.aria-activedescendant]=\"activeOptionId()\"\n        [attr.aria-invalid]=\"error() ? 'true' : null\"\n        [attr.aria-describedby]=\"describedBy\"\n        aria-autocomplete=\"list\"\n        (input)=\"handleSearchInput($event)\"\n        (focus)=\"open()\"\n      />\n    } @else {\n      <button\n        #trigger\n        type=\"button\"\n        class=\"dropdown__trigger dropdown__trigger--button\"\n        [id]=\"dropdownId\"\n        [disabled]=\"isDisabled\"\n        [autofocus]=\"autoFocus()\"\n        aria-haspopup=\"listbox\"\n        [attr.aria-label]=\"ariaLabel()\"\n        [attr.aria-expanded]=\"isOpen()\"\n        [attr.aria-controls]=\"listboxId\"\n        [attr.aria-activedescendant]=\"activeOptionId()\"\n        [attr.aria-invalid]=\"error() ? 'true' : null\"\n        [attr.aria-describedby]=\"describedBy\"\n        (click)=\"toggleOpen()\"\n      >\n        <span\n          class=\"dropdown__trigger-label\"\n          [class.dropdown__trigger-label--placeholder]=\"!hasValue()\"\n        >\n          {{ triggerLabel() }}\n        </span>\n        <span class=\"dropdown__chevron\" [class.dropdown__chevron--open]=\"isOpen()\" aria-hidden=\"true\">\n          &#9662;\n        </span>\n      </button>\n    }\n\n    @if (clearable() && hasValue() && !isDisabled && !readonly()) {\n      <button\n        type=\"button\"\n        class=\"dropdown__clear\"\n        [attr.aria-label]=\"clearAriaLabel()\"\n        (click)=\"clear()\"\n      >\n        <span aria-hidden=\"true\">&times;</span>\n      </button>\n    }\n  </div>\n\n  <ul\n    #listbox\n    class=\"dropdown__listbox\"\n    role=\"listbox\"\n    [id]=\"listboxId\"\n    [hidden]=\"!isOpen()\"\n    [style.top]=\"listboxStyle()?.top\"\n    [style.left]=\"listboxStyle()?.left\"\n    [style.width]=\"listboxStyle()?.width\"\n    [attr.aria-multiselectable]=\"multiple() ? 'true' : null\"\n    [attr.aria-label]=\"menuAriaLabel()\"\n  >\n    @if (isOpen()) {\n      @for (option of filteredOptions(); track option.value) {\n        <li\n          [id]=\"optionId(option)\"\n          role=\"option\"\n          class=\"dropdown__option\"\n          [class.dropdown__option--active]=\"activeOptionId() === optionId(option)\"\n          [class.dropdown__option--selected]=\"isSelected(option)\"\n          [attr.aria-selected]=\"isSelected(option)\"\n          (click)=\"selectOption(option)\"\n        >\n          {{ option.label }}\n        </li>\n      } @empty {\n        <li class=\"dropdown__option dropdown__option--empty\">No options</li>\n      }\n    }\n  </ul>\n\n  @if (hint() && !error()) {\n    <p class=\"dropdown__hint\" [id]=\"hintId\">{{ hint() }}</p>\n  }\n\n  @if (error()) {\n    <p class=\"dropdown__error\" [id]=\"errorId\" role=\"alert\">{{ error() }}</p>\n  }\n</div>\n"
+            "templateData": "<div class=\"dropdown\">\n  <label class=\"dropdown__label\" [for]=\"dropdownId\">{{ label() }}</label>\n\n  @if (multiple() && selectedOptions().length > 0) {\n    <div class=\"dropdown__chips\">\n      @for (option of selectedOptions(); track option.value) {\n        <ds-tag\n          [dismissible]=\"!isDisabled && !readonly()\"\n          [dismissLabel]=\"'Remove ' + option.label\"\n          (dismissed)=\"removeOption(option)\"\n        >\n          {{ option.label }}\n        </ds-tag>\n      }\n    </div>\n  }\n\n  <div\n    class=\"dropdown__trigger-row\"\n    [class.dropdown__trigger-row--small]=\"size() === 'small'\"\n    [class.dropdown__trigger-row--large]=\"size() === 'large'\"\n    [class.dropdown__trigger-row--error]=\"!!error()\"\n    [class.dropdown__trigger-row--disabled]=\"isDisabled\"\n  >\n    @if (searchable()) {\n      <input\n        #trigger\n        class=\"dropdown__trigger dropdown__trigger--input\"\n        type=\"text\"\n        role=\"combobox\"\n        [id]=\"dropdownId\"\n        [value]=\"searchTerm()\"\n        [placeholder]=\"hasValue() ? triggerLabel() : placeholder()\"\n        [disabled]=\"isDisabled\"\n        [readOnly]=\"readonly()\"\n        [autofocus]=\"autoFocus()\"\n        [attr.aria-label]=\"ariaLabel()\"\n        [attr.aria-expanded]=\"isOpen()\"\n        [attr.aria-controls]=\"listboxId\"\n        [attr.aria-activedescendant]=\"activeOptionId()\"\n        [attr.aria-invalid]=\"error() ? 'true' : null\"\n        [attr.aria-describedby]=\"describedBy\"\n        [attr.aria-readonly]=\"readonly() ? 'true' : null\"\n        aria-autocomplete=\"list\"\n        (input)=\"handleSearchInput($event)\"\n        (focus)=\"open()\"\n        (keydown)=\"handleTriggerKeydown($event)\"\n      />\n    } @else {\n      <button\n        #trigger\n        type=\"button\"\n        class=\"dropdown__trigger dropdown__trigger--button\"\n        [id]=\"dropdownId\"\n        [disabled]=\"isDisabled\"\n        [autofocus]=\"autoFocus()\"\n        aria-haspopup=\"listbox\"\n        [attr.aria-label]=\"ariaLabel()\"\n        [attr.aria-expanded]=\"isOpen()\"\n        [attr.aria-controls]=\"listboxId\"\n        [attr.aria-activedescendant]=\"activeOptionId()\"\n        [attr.aria-invalid]=\"error() ? 'true' : null\"\n        [attr.aria-describedby]=\"describedBy\"\n        (click)=\"toggleOpen()\"\n        (keydown)=\"handleTriggerKeydown($event)\"\n      >\n        <span\n          class=\"dropdown__trigger-label\"\n          [class.dropdown__trigger-label--placeholder]=\"!hasValue()\"\n        >\n          {{ triggerLabel() }}\n        </span>\n        <span class=\"dropdown__chevron\" [class.dropdown__chevron--open]=\"isOpen()\" aria-hidden=\"true\">\n          &#9662;\n        </span>\n      </button>\n    }\n\n    @if (clearable() && hasValue() && !isDisabled && !readonly()) {\n      <button\n        type=\"button\"\n        class=\"dropdown__clear\"\n        [attr.aria-label]=\"clearAriaLabel()\"\n        (click)=\"clear()\"\n      >\n        <span aria-hidden=\"true\">&times;</span>\n      </button>\n    }\n  </div>\n\n  <ul\n    #listbox\n    class=\"dropdown__listbox\"\n    role=\"listbox\"\n    [id]=\"listboxId\"\n    [hidden]=\"!isOpen()\"\n    [style.top]=\"listboxStyle()?.top\"\n    [style.left]=\"listboxStyle()?.left\"\n    [style.width]=\"listboxStyle()?.width\"\n    [attr.aria-multiselectable]=\"multiple() ? 'true' : null\"\n    [attr.aria-label]=\"menuAriaLabel()\"\n  >\n    @if (isOpen()) {\n      @for (option of filteredOptions(); track option.value) {\n        <li\n          [id]=\"dropdownId + '-option-' + $index\"\n          role=\"option\"\n          class=\"dropdown__option\"\n          [class.dropdown__option--active]=\"activeIndex() === $index\"\n          [class.dropdown__option--selected]=\"isSelected(option)\"\n          [attr.aria-selected]=\"isSelected(option)\"\n          (click)=\"selectOption(option)\"\n        >\n          {{ option.label }}\n        </li>\n      } @empty {\n        <li role=\"option\" aria-disabled=\"true\" class=\"dropdown__option dropdown__option--empty\">No options</li>\n      }\n    }\n  </ul>\n\n  @if (hint() && !error()) {\n    <p class=\"dropdown__hint\" [id]=\"hintId\">{{ hint() }}</p>\n  }\n\n  @if (error()) {\n    <p class=\"dropdown__error\" [id]=\"errorId\" role=\"alert\">{{ error() }}</p>\n  }\n</div>\n"
         },
         {
             "name": "Input",
@@ -4425,8 +4387,8 @@
                 "type": "component",
                 "linktype": "component",
                 "name": "Dropdown",
-                "coveragePercent": 1,
-                "coverageCount": "1/64",
+                "coveragePercent": 3,
+                "coverageCount": "2/63",
                 "status": "low"
             },
             {

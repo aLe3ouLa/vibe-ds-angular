@@ -65,6 +65,9 @@ same as `ds-input`.
 CVA value: `T | null` when `multiple` is `false`, `T[]` when `true` — the
 same duality native `<select multiple>` has.
 
+When search filtering returns no matches, the listbox shows a non-interactive
+“No options” empty state.
+
 ## Accessibility
 
 - Trigger is a real `<button type="button">` (`aria-haspopup="listbox"`)
@@ -98,8 +101,9 @@ same duality native `<select multiple>` has.
   decorative markup.
 - `error`/`hint` use the same `aria-invalid`/`aria-describedby` pattern as
   `ds-input`.
-- `readonly` sets `aria-readonly="true"` on the searchable/combobox
-  trigger, where it's a valid ARIA property. The plain-button trigger
+- `readonly` sets the native `readonly` attribute and `aria-readonly="true"`
+  on the searchable/combobox trigger, so it remains focusable but cannot be
+  edited or open the menu. The plain-button trigger
   (not searchable) has no equivalent — `aria-readonly` isn't in the ARIA
   spec's supported-states list for `role="button"`, so there's currently
   no way to announce a read-only closed-select trigger as such; it's

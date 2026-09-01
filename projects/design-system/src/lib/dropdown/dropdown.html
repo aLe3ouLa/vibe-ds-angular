@@ -32,6 +32,7 @@
         [value]="searchTerm()"
         [placeholder]="hasValue() ? triggerLabel() : placeholder()"
         [disabled]="isDisabled"
+        [readOnly]="readonly()"
         [autofocus]="autoFocus()"
         [attr.aria-label]="ariaLabel()"
         [attr.aria-expanded]="isOpen()"
@@ -102,10 +103,10 @@
     @if (isOpen()) {
       @for (option of filteredOptions(); track option.value) {
         <li
-          [id]="optionId(option)"
+          [id]="dropdownId + '-option-' + $index"
           role="option"
           class="dropdown__option"
-          [class.dropdown__option--active]="activeOptionId() === optionId(option)"
+          [class.dropdown__option--active]="activeIndex() === $index"
           [class.dropdown__option--selected]="isSelected(option)"
           [attr.aria-selected]="isSelected(option)"
           (click)="selectOption(option)"

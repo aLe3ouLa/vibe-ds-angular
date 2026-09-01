@@ -25,6 +25,12 @@ an existing component rather than new chip markup.
 No new design tokens — reuses the same spacing/color/radius/font tokens
 `ds-input` already uses.
 
+The trigger focus ring and active-option outline use
+`--ds-color-action-primary`, matching the established `ds-input` focus
+convention. This provides a consistent, recognizable focus treatment across
+form controls; the trigger's ring uses the same 35% `color-mix` treatment as
+`ds-input`.
+
 ## Why
 
 The component was scoped deliberately smaller than a full-featured

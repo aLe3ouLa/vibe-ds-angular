@@ -2,6 +2,15 @@
   "$schema": "Curated, hand-maintained facts about public components that cannot be derived from source: category, governance status, and doc links. Prop types, defaults, and descriptions come from documentation.json (compodoc) at build/query time, not from this file, so they can never drift from the implementation.",
   "components": [
     {
+      "name": "ds-alert-banner",
+      "compodocName": "AlertBanner",
+      "category": "Feedback",
+      "status": "stable",
+      "documentation": "docs/components/alert-banner.md",
+      "decisionRecord": "docs/governance/decisions/005-alert-banner.md",
+      "storybook": "Feedback/Alert Banner"
+    },
+    {
       "name": "ds-button",
       "compodocName": "Button",
       "category": "Actions",

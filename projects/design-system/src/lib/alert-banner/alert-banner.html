@@ -1,0 +1,29 @@
+<div
+  class="alert-banner"
+  [class.alert-banner--error]="variant() === 'error'"
+  [class.alert-banner--warning]="variant() === 'warning'"
+  [class.alert-banner--success]="variant() === 'success'"
+  [class.alert-banner--info]="variant() === 'info'"
+  [attr.role]="role"
+>
+  <p class="alert-banner__message">
+    <span class="alert-banner__severity-label">{{ severityLabel }}:</span>
+    {{ message() }}
+  </p>
+
+  <div class="alert-banner__actions">
+    <ng-content select="[slot=primary-action]" />
+    <ng-content select="[slot=secondary-action]" />
+  </div>
+
+  @if (dismissible()) {
+    <button
+      type="button"
+      class="alert-banner__dismiss"
+      [attr.aria-label]="dismissLabel()"
+      (click)="handleDismiss()"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  }
+</div>

@@ -84,18 +84,19 @@
     }
   </div>
 
-  @if (isOpen()) {
-    <ul
-      #listbox
-      class="dropdown__listbox"
-      role="listbox"
-      [id]="listboxId"
-      [style.top]="listboxStyle()?.top"
-      [style.left]="listboxStyle()?.left"
-      [style.width]="listboxStyle()?.width"
-      [attr.aria-multiselectable]="multiple() ? 'true' : null"
-      [attr.aria-label]="menuAriaLabel()"
-    >
+  <ul
+    #listbox
+    class="dropdown__listbox"
+    role="listbox"
+    [id]="listboxId"
+    [hidden]="!isOpen()"
+    [style.top]="listboxStyle()?.top"
+    [style.left]="listboxStyle()?.left"
+    [style.width]="listboxStyle()?.width"
+    [attr.aria-multiselectable]="multiple() ? 'true' : null"
+    [attr.aria-label]="menuAriaLabel()"
+  >
+    @if (isOpen()) {
       @for (option of filteredOptions(); track option.value) {
         <li
           [id]="optionId(option)"
@@ -111,8 +112,8 @@
       } @empty {
         <li class="dropdown__option dropdown__option--empty">No options</li>
       }
-    </ul>
-  }
+    }
+  </ul>
 
   @if (hint() && !error()) {
     <p class="dropdown__hint" [id]="hintId">{{ hint() }}</p>

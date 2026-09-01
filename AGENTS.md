@@ -94,6 +94,26 @@ hand-maintained lists:
   (`--ds-color-...`, `--ds-space-...`, etc.), parsed from the generated
   `_semantic.scss`. Use these instead of hardcoding raw values.
 
+## Agent skills
+
+### Issue tracker
+
+Issues live in this repo's GitHub Issues (`github.com/aLe3ouLa/vibe-ds-angular`);
+skills use the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary: label string equals canonical role name (`needs-triage`,
+`needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`); the four not
+yet present on this repo are created on first use. See
+`docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` at the repo root (created lazily), with this
+repo's existing `docs/governance/decisions/` standing in as the ADR log and
+`docs/governance/rfcs/` for proposals. See `docs/agents/domain.md`.
+
 ## Validation
 
 Run after changes:

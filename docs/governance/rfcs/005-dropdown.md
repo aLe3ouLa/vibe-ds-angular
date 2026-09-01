@@ -165,6 +165,25 @@ it must reference design tokens directly (`var(--ds-font-family-base)`),
 which cascade from `:root` regardless of DOM position. The listbox styles
 do this explicitly rather than relying on inheritance from `:host`.
 
+The listbox `<ul>` is always present in the DOM (with a stable id),
+toggled via `[hidden]` rather than added/removed with `@if`. This is
+required, not cosmetic: `aria-controls` on the trigger must reference a
+real element at all times — with `@if`, that id didn't exist in the DOM
+while closed, a genuine dangling reference. With `[hidden]`, it always
+exists.
+
+**Expected, permanent axe finding**: `aria-valid-attr-value` still flags
+the trigger's `aria-controls` as `needsReview` (`messageKey:
+"controlsWithinPopup"`), even with the id always present and even when
+verified open and visible by hand. This is axe-core's built-in
+always-manual-review classification for any `aria-haspopup` element whose
+controlled popup isn't a plain DOM descendant of the trigger — true for
+any portaled popup (this is the same flag Radix, MUI, and react-aria
+comboboxes all trigger). It is not a proxy for "does the reference
+resolve correctly" — that was verified directly, by hand, with the menu
+open. Do not attempt to silence this by abandoning the `document.body`
+portal; that would reintroduce the real clipping bug the portal fixes.
+
 Severity/error state reuses `ds-input`'s exact `describedBy` pattern
 (`aria-invalid`, `aria-describedby` → hint or error id) rather than
 reinventing it.

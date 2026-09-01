@@ -85,7 +85,14 @@ same duality native `<select multiple>` has.
   with `overflow: hidden`/`auto`, or trapped by an ancestor with any
   `transform` (both of which happen inside Storybook's own docs page).
   This is intentional, not a leak — Angular tracks the view by internal
-  references, not DOM position, so it's cleaned up correctly.
+  references, not DOM position, so it's cleaned up correctly. The listbox
+  element always exists in the DOM (toggled via `[hidden]`, not `@if`),
+  so `aria-controls` always references a real element. axe-core still
+  flags that reference as `needsReview` regardless — its built-in,
+  always-manual classification for any `aria-haspopup` element whose
+  popup isn't a plain DOM descendant, true of any portaled popup. See
+  RFC 005 for the direct verification (menu open, element visible, still
+  flagged) confirming this isn't an actual dangling reference.
 - Multi-select chips are real `ds-tag[dismissible]` instances, so they're
   focusable buttons with `dismissLabel`-driven accessible names, not
   decorative markup.

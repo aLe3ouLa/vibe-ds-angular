@@ -1,0 +1,124 @@
+<div class="dropdown" (keydown)="handleTriggerKeydown($event)">
+  <label class="dropdown__label" [for]="dropdownId">{{ label() }}</label>
+
+  @if (multiple() && selectedOptions().length > 0) {
+    <div class="dropdown__chips">
+      @for (option of selectedOptions(); track option.value) {
+        <ds-tag
+          [dismissible]="!isDisabled && !readonly()"
+          [dismissLabel]="'Remove ' + option.label"
+          (dismissed)="removeOption(option)"
+        >
+          {{ option.label }}
+        </ds-tag>
+      }
+    </div>
+  }
+
+  <div
+    class="dropdown__trigger-row"
+    [class.dropdown__trigger-row--small]="size() === 'small'"
+    [class.dropdown__trigger-row--large]="size() === 'large'"
+    [class.dropdown__trigger-row--error]="!!error()"
+    [class.dropdown__trigger-row--disabled]="isDisabled"
+  >
+    @if (searchable()) {
+      <input
+        #trigger
+        class="dropdown__trigger dropdown__trigger--input"
+        type="text"
+        role="combobox"
+        [id]="dropdownId"
+        [value]="searchTerm()"
+        [placeholder]="hasValue() ? triggerLabel() : placeholder()"
+        [disabled]="isDisabled"
+        [autofocus]="autoFocus()"
+        [attr.aria-label]="ariaLabel()"
+        [attr.aria-expanded]="isOpen()"
+        [attr.aria-controls]="listboxId"
+        [attr.aria-activedescendant]="activeOptionId()"
+        [attr.aria-invalid]="error() ? 'true' : null"
+        [attr.aria-describedby]="describedBy"
+        aria-autocomplete="list"
+        (input)="handleSearchInput($event)"
+        (focus)="open()"
+      />
+    } @else {
+      <button
+        #trigger
+        type="button"
+        class="dropdown__trigger dropdown__trigger--button"
+        [id]="dropdownId"
+        [disabled]="isDisabled"
+        [autofocus]="autoFocus()"
+        aria-haspopup="listbox"
+        [attr.aria-label]="ariaLabel()"
+        [attr.aria-expanded]="isOpen()"
+        [attr.aria-controls]="listboxId"
+        [attr.aria-activedescendant]="activeOptionId()"
+        [attr.aria-invalid]="error() ? 'true' : null"
+        [attr.aria-describedby]="describedBy"
+        (click)="toggleOpen()"
+      >
+        <span
+          class="dropdown__trigger-label"
+          [class.dropdown__trigger-label--placeholder]="!hasValue()"
+        >
+          {{ triggerLabel() }}
+        </span>
+        <span class="dropdown__chevron" [class.dropdown__chevron--open]="isOpen()" aria-hidden="true">
+          &#9662;
+        </span>
+      </button>
+    }
+
+    @if (clearable() && hasValue() && !isDisabled && !readonly()) {
+      <button
+        type="button"
+        class="dropdown__clear"
+        [attr.aria-label]="clearAriaLabel()"
+        (click)="clear()"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    }
+  </div>
+
+  @if (isOpen()) {
+    <ul
+      #listbox
+      class="dropdown__listbox"
+      role="listbox"
+      [id]="listboxId"
+      [style.top]="listboxStyle()?.top"
+      [style.left]="listboxStyle()?.left"
+      [style.width]="listboxStyle()?.width"
+      [attr.aria-multiselectable]="multiple() ? 'true' : null"
+      [attr.aria-label]="menuAriaLabel()"
+    >
+      @for (option of filteredOptions(); track option.value) {
+        <li
+          [id]="optionId(option)"
+          role="option"
+          class="dropdown__option"
+          [class.dropdown__option--active]="activeOptionId() === optionId(option)"
+          [class.dropdown__option--selected]="isSelected(option)"
+          [attr.aria-selected]="isSelected(option)"
+          (click)="selectOption(option)"
+        >
+          {{ option.label }}
+        </li>
+      } @empty {
+        <li class="dropdown__option dropdown__option--empty">No options</li>
+      }
+    </ul>
+  }
+
+  @if (hint() && !error()) {
+    <p class="dropdown__hint" [id]="hintId">{{ hint() }}</p>
+  }
+
+  @if (error()) {
+    <p class="dropdown__error" [id]="errorId" role="alert">{{ error() }}</p>
+  }
+</div>

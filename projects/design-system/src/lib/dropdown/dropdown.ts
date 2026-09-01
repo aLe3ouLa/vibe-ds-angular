@@ -52,6 +52,15 @@ export class Dropdown<T> implements ControlValueAccessor {
   readonly hint = input<string | null>(null);
   readonly autoFocus = input(false);
 
+  /**
+   * Overrides the trigger's computed accessible name (normally sourced
+   * from `label` via `<label for>`). When set, it must contain the
+   * visible `label` text — per WCAG 2.5.3 Label in Name, a speech-input
+   * user who says the visible label must be able to activate the
+   * control. Prefer leaving this unset and relying on `label` alone
+   * unless the visible label genuinely can't serve as the accessible
+   * name.
+   */
   readonly ariaLabel = input<string | null>(null);
   readonly menuAriaLabel = input<string | null>(null);
   readonly clearAriaLabel = input('Clear selection');

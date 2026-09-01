@@ -98,6 +98,17 @@ same duality native `<select multiple>` has.
   decorative markup.
 - `error`/`hint` use the same `aria-invalid`/`aria-describedby` pattern as
   `ds-input`.
+- `readonly` sets `aria-readonly="true"` on the searchable/combobox
+  trigger, where it's a valid ARIA property. The plain-button trigger
+  (not searchable) has no equivalent — `aria-readonly` isn't in the ARIA
+  spec's supported-states list for `role="button"`, so there's currently
+  no way to announce a read-only closed-select trigger as such; it's
+  exposed as a normal operable button whose activation silently no-ops.
+- If you set `ariaLabel`, it must contain the visible `label` text — per
+  WCAG 2.5.3 Label in Name, a speech-input user who says the visible
+  label needs to be able to activate the control. Prefer leaving
+  `ariaLabel` unset and relying on `label` alone unless the visible label
+  genuinely can't serve as the accessible name.
 
 ## Versioning
 

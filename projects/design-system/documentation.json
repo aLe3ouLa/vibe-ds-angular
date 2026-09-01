@@ -1,12 +1,237 @@
 {
     "pipes": [],
-    "interfaces": [],
+    "interfaces": [
+        {
+            "name": "DropdownOption",
+            "id": "interface-DropdownOption-99b89dff38a16a5013f18afb9e1812a31c6caae3d05663a3327d799c87e4a70f4f727a169b7da08b214b1104db6580e13a93a7f8dcb7e44141af9a0ab1ebbfaf",
+            "file": "projects/design-system/src/lib/dropdown/dropdown.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "import {\n  Component,\n  ElementRef,\n  HostListener,\n  Renderer2,\n  computed,\n  effect,\n  forwardRef,\n  inject,\n  input,\n  signal,\n  viewChild,\n} from '@angular/core';\nimport { DOCUMENT } from '@angular/common';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\n\nimport { Tag } from '../tag/tag';\n\nexport interface DropdownOption<T> {\n  value: T;\n  label: string;\n}\n\ntype DropdownSize = 'small' | 'medium' | 'large';\n\nconst TYPEAHEAD_RESET_MS = 500;\n\n@Component({\n  selector: 'ds-dropdown',\n  imports: [Tag],\n  templateUrl: './dropdown.html',\n  styleUrl: './dropdown.scss',\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => Dropdown),\n      multi: true,\n    },\n  ],\n})\nexport class Dropdown<T> implements ControlValueAccessor {\n  readonly options = input.required<DropdownOption<T>[]>();\n  readonly label = input.required<string>();\n  readonly placeholder = input('');\n  readonly multiple = input(false);\n  readonly searchable = input(false);\n  readonly clearable = input(false);\n  readonly size = input<DropdownSize>('medium');\n  readonly disabled = input(false);\n  readonly readonly = input(false);\n  readonly error = input<string | null>(null);\n  readonly hint = input<string | null>(null);\n  readonly autoFocus = input(false);\n\n  readonly ariaLabel = input<string | null>(null);\n  readonly menuAriaLabel = input<string | null>(null);\n  readonly clearAriaLabel = input('Clear selection');\n\n  protected value: T | T[] | null = null;\n  private formDisabled = false;\n  private onChange: (value: T | T[] | null) => void = () => {};\n  private onTouched: () => void = () => {};\n\n  protected readonly isOpen = signal(false);\n  protected readonly activeIndex = signal(-1);\n  protected readonly searchTerm = signal('');\n\n  protected readonly triggerRef =\n    viewChild<ElementRef<HTMLElement>>('trigger');\n  protected readonly listboxRef =\n    viewChild<ElementRef<HTMLElement>>('listbox');\n\n  protected readonly listboxStyle = signal<{\n    top: string;\n    left: string;\n    width: string;\n  } | null>(null);\n\n  protected readonly dropdownId = `ds-dropdown-${crypto.randomUUID()}`;\n  protected readonly listboxId = `${this.dropdownId}-listbox`;\n  protected readonly hintId = `${this.dropdownId}-hint`;\n  protected readonly errorId = `${this.dropdownId}-error`;\n\n  private readonly document = inject(DOCUMENT);\n  private readonly renderer = inject(Renderer2);\n\n  constructor() {\n    /*\n     * Move the listbox to a direct child of <body> once it renders.\n     * A plain child element can get trapped inside an ancestor's\n     * `overflow: hidden`/`auto` (position: absolute) or an ancestor's\n     * `transform` (position: fixed — any transform, even the identity\n     * matrix, creates a new containing block per the CSS spec). Storybook's\n     * own docs-page zoom wrapper does exactly that. Re-parenting to <body>\n     * removes every such ancestor from the equation. Angular tracks this\n     * view by its own internal view refs, not by DOM parentage, so this\n     * is safe to do manually without @angular/cdk's Overlay/portal.\n     */\n    effect(() => {\n      const listbox = this.listboxRef()?.nativeElement;\n\n      if (listbox && listbox.parentElement !== this.document.body) {\n        this.renderer.appendChild(this.document.body, listbox);\n      }\n    });\n  }\n\n  private readonly elementRef = inject(ElementRef<HTMLElement>);\n\n  private typeaheadBuffer = '';\n  private typeaheadTimeout: ReturnType<typeof setTimeout> | null = null;\n\n  protected readonly filteredOptions = computed(() => {\n    const term = this.searchTerm().trim().toLowerCase();\n\n    if (!term) {\n      return this.options();\n    }\n\n    return this.options().filter((option) =>\n      option.label.toLowerCase().includes(term)\n    );\n  });\n\n  protected readonly activeOptionId = computed(() => {\n    const index = this.activeIndex();\n    const opts = this.filteredOptions();\n\n    if (index < 0 || index >= opts.length) {\n      return null;\n    }\n\n    return this.optionId(opts[index]);\n  });\n\n  protected get describedBy(): string | null {\n    if (this.error()) {\n      return this.errorId;\n    }\n\n    if (this.hint()) {\n      return this.hintId;\n    }\n\n    return null;\n  }\n\n  protected get isDisabled(): boolean {\n    return this.disabled() || this.formDisabled;\n  }\n\n  writeValue(value: T | T[] | null): void {\n    this.value = value ?? (this.multiple() ? [] : null);\n  }\n\n  registerOnChange(onChange: (value: T | T[] | null) => void): void {\n    this.onChange = onChange;\n  }\n\n  registerOnTouched(onTouched: () => void): void {\n    this.onTouched = onTouched;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.formDisabled = isDisabled;\n  }\n\n  protected optionId(option: DropdownOption<T>): string {\n    return `${this.dropdownId}-option-${this.options().indexOf(option)}`;\n  }\n\n  protected selectedOptions(): DropdownOption<T>[] {\n    if (this.multiple()) {\n      const values = (this.value as T[] | null) ?? [];\n      return this.options().filter((option) => values.includes(option.value));\n    }\n\n    const value = this.value as T | null;\n\n    if (value === null || value === undefined) {\n      return [];\n    }\n\n    return this.options().filter((option) => option.value === value);\n  }\n\n  protected isSelected(option: DropdownOption<T>): boolean {\n    if (this.multiple()) {\n      return ((this.value as T[] | null) ?? []).includes(option.value);\n    }\n\n    return this.value === option.value;\n  }\n\n  protected hasValue(): boolean {\n    return this.selectedOptions().length > 0;\n  }\n\n  protected triggerLabel(): string {\n    const selected = this.selectedOptions();\n\n    if (selected.length === 0) {\n      return this.placeholder();\n    }\n\n    if (this.multiple()) {\n      return `${selected.length} selected`;\n    }\n\n    return selected[0].label;\n  }\n\n  @HostListener('document:click', ['$event'])\n  protected handleDocumentClick(event: MouseEvent): void {\n    if (!this.isOpen()) {\n      return;\n    }\n\n    if (!this.elementRef.nativeElement.contains(event.target as Node)) {\n      this.close();\n    }\n  }\n\n  protected open(): void {\n    if (this.isDisabled || this.readonly() || this.isOpen()) {\n      return;\n    }\n\n    this.isOpen.set(true);\n    this.updatePosition();\n\n    const opts = this.filteredOptions();\n\n    if (opts.length === 0) {\n      this.activeIndex.set(-1);\n      return;\n    }\n\n    if (!this.multiple() && this.value !== null) {\n      const index = opts.findIndex((option) => option.value === this.value);\n      this.activeIndex.set(index >= 0 ? index : 0);\n    } else {\n      this.activeIndex.set(0);\n    }\n  }\n\n  protected close(): void {\n    this.isOpen.set(false);\n    this.activeIndex.set(-1);\n    this.searchTerm.set('');\n    this.onTouched();\n  }\n\n  @HostListener('window:scroll')\n  @HostListener('window:resize')\n  protected handleViewportChange(): void {\n    if (this.isOpen()) {\n      this.updatePosition();\n    }\n  }\n\n  /**\n   * Positions the listbox with `position: fixed` from the trigger's\n   * viewport coordinates, rather than `position: absolute` relative to\n   * the host. Fixed positioning escapes any ancestor's `overflow: hidden`\n   * or `overflow: auto` (e.g. Storybook's docs-page story preview box),\n   * which absolute positioning does not.\n   */\n  private updatePosition(): void {\n    const trigger = this.triggerRef()?.nativeElement;\n\n    if (!trigger) {\n      return;\n    }\n\n    const rect = trigger.getBoundingClientRect();\n\n    this.listboxStyle.set({\n      top: `${rect.bottom + 4}px`,\n      left: `${rect.left}px`,\n      width: `${rect.width}px`,\n    });\n  }\n\n  protected toggleOpen(): void {\n    if (this.isOpen()) {\n      this.close();\n    } else {\n      this.open();\n    }\n  }\n\n  protected commitActive(): void {\n    const opts = this.filteredOptions();\n    const index = this.activeIndex();\n\n    if (index < 0 || index >= opts.length) {\n      return;\n    }\n\n    this.selectOption(opts[index]);\n  }\n\n  protected selectOption(option: DropdownOption<T>): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    if (this.multiple()) {\n      const current = (this.value as T[] | null) ?? [];\n      const next = current.includes(option.value)\n        ? current.filter((value) => value !== option.value)\n        : [...current, option.value];\n\n      this.value = next;\n      this.onChange(next);\n      return;\n    }\n\n    this.value = option.value;\n    this.onChange(option.value);\n    this.close();\n  }\n\n  protected removeOption(option: DropdownOption<T>): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    const current = (this.value as T[] | null) ?? [];\n    const next = current.filter((value) => value !== option.value);\n\n    this.value = next;\n    this.onChange(next);\n  }\n\n  protected clear(): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    this.value = this.multiple() ? [] : null;\n    this.onChange(this.value);\n  }\n\n  protected handleSearchInput(event: Event): void {\n    const target = event.target as HTMLInputElement;\n    this.searchTerm.set(target.value);\n    this.activeIndex.set(0);\n\n    if (!this.isOpen()) {\n      this.isOpen.set(true);\n    }\n  }\n\n  protected handleTriggerKeydown(event: KeyboardEvent): void {\n    switch (event.key) {\n      case 'ArrowDown':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.moveActive(1);\n        } else {\n          this.open();\n        }\n        break;\n\n      case 'ArrowUp':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.moveActive(-1);\n        } else {\n          this.open();\n        }\n        break;\n\n      case 'Home':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.activeIndex.set(0);\n        }\n        break;\n\n      case 'End':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.activeIndex.set(this.filteredOptions().length - 1);\n        }\n        break;\n\n      case 'Enter':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.commitActive();\n        } else if (!this.searchable()) {\n          this.open();\n        }\n        break;\n\n      case ' ':\n        if (!this.searchable()) {\n          event.preventDefault();\n          if (this.isOpen()) {\n            this.commitActive();\n          } else {\n            this.open();\n          }\n        }\n        break;\n\n      case 'Escape':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.close();\n        }\n        break;\n\n      default:\n        if (!this.searchable() && event.key.length === 1) {\n          this.handleTypeahead(event.key);\n        }\n        break;\n    }\n  }\n\n  private moveActive(delta: number): void {\n    const opts = this.filteredOptions();\n\n    if (opts.length === 0) {\n      return;\n    }\n\n    const next = this.activeIndex() + delta;\n    this.activeIndex.set(Math.min(Math.max(next, 0), opts.length - 1));\n  }\n\n  private handleTypeahead(char: string): void {\n    this.typeaheadBuffer += char.toLowerCase();\n\n    if (this.typeaheadTimeout) {\n      clearTimeout(this.typeaheadTimeout);\n    }\n\n    this.typeaheadTimeout = setTimeout(() => {\n      this.typeaheadBuffer = '';\n    }, TYPEAHEAD_RESET_MS);\n\n    const opts = this.filteredOptions();\n    const matchIndex = opts.findIndex((option) =>\n      option.label.toLowerCase().startsWith(this.typeaheadBuffer)\n    );\n\n    if (matchIndex >= 0) {\n      if (!this.isOpen()) {\n        this.open();\n      }\n      this.activeIndex.set(matchIndex);\n    }\n  }\n}\n",
+            "displayName": "DropdownOption<T>",
+            "typeParameters": [
+                "T"
+            ],
+            "properties": [
+                {
+                    "name": "label",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 21,
+                    "rawdescription": "\n"
+                },
+                {
+                    "name": "value",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "T",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 20,
+                    "rawdescription": "\n"
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 172,
+            "methods": [],
+            "extends": [],
+            "relationships": {
+                "incoming": [],
+                "outgoing": []
+            }
+        }
+    ],
     "injectables": [],
     "guards": [],
     "interceptors": [],
     "classes": [],
     "directives": [],
     "components": [
+        {
+            "name": "AlertBanner",
+            "id": "component-AlertBanner-35edc15110bb34d18216dee3beda95e016952a5b7e883d308a79a20bac90be83ea3363bf066b7f931d06b4974eaffc7dddc21a568ddea1eca479d6df6f3d2ab0",
+            "file": "projects/design-system/src/lib/alert-banner/alert-banner.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "ds-alert-banner",
+            "styleUrls": [
+                "./alert-banner.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./alert-banner.html"
+            ],
+            "templateVariables": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "dismissible",
+                    "coverageIgnore": false,
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 21,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "dismissLabel",
+                    "coverageIgnore": false,
+                    "defaultValue": "'Dismiss'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 22,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "message",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 20,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": true
+                },
+                {
+                    "name": "variant",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "AlertBannerVariant",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 19,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": true
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "dismissed",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "void",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 24,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "handleDismiss",
+                    "coverageIgnore": false,
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 34,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ]
+                }
+            ],
+            "coverageIgnore": false,
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, input, output } from '@angular/core';\n\ntype AlertBannerVariant = 'error' | 'warning' | 'success' | 'info';\n\nconst severityLabels: Record<AlertBannerVariant, string> = {\n  error: 'Error',\n  warning: 'Warning',\n  success: 'Success',\n  info: 'Info',\n};\n\n@Component({\n  imports: [],\n  selector: 'ds-alert-banner',\n  styleUrl: './alert-banner.scss',\n  templateUrl: './alert-banner.html',\n})\nexport class AlertBanner {\n  readonly variant = input.required<AlertBannerVariant>();\n  readonly message = input.required<string>();\n  readonly dismissible = input(false);\n  readonly dismissLabel = input('Dismiss');\n\n  readonly dismissed = output<void>();\n\n  protected get role(): 'alert' | 'status' {\n    return this.variant() === 'error' ? 'alert' : 'status';\n  }\n\n  protected get severityLabel(): string {\n    return severityLabels[this.variant()];\n  }\n\n  protected handleDismiss(): void {\n    this.dismissed.emit();\n  }\n}\n",
+            "styleUrl": "./alert-banner.scss",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ":host {\n  display: block;\n}\n\n.alert-banner {\n  display: flex;\n  align-items: center;\n  gap: var(--ds-space-3);\n  padding: var(--ds-space-3) var(--ds-space-4);\n  border-radius: var(--ds-radius-md);\n  background: var(--ds-color-surface-subtle);\n  color: var(--ds-color-text-default);\n  font-family: var(--ds-font-family-base);\n}\n\n.alert-banner--error {\n  background: var(--ds-color-feedback-error);\n  color: var(--ds-color-text-inverse);\n}\n\n.alert-banner--warning {\n  background: var(--ds-color-feedback-warning);\n  color: var(--ds-color-text-default);\n}\n\n.alert-banner--success {\n  background: var(--ds-color-feedback-success);\n  color: var(--ds-color-text-inverse);\n}\n\n.alert-banner--info {\n  background: var(--ds-color-feedback-info);\n  color: var(--ds-color-text-inverse);\n}\n\n.alert-banner__severity-label {\n  position: absolute;\n  width: 1px;\n  height: 1px;\n  padding: 0;\n  margin: -1px;\n  overflow: hidden;\n  clip: rect(0, 0, 0, 0);\n  white-space: nowrap;\n  border: 0;\n}\n\n.alert-banner__message {\n  flex: 1 1 auto;\n  min-width: 0;\n  margin: 0;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  font-weight: var(--ds-font-weight-medium);\n}\n\n.alert-banner__actions {\n  display: flex;\n  flex: 0 0 auto;\n  align-items: center;\n  gap: var(--ds-space-2);\n}\n\n.alert-banner__actions:empty {\n  display: none;\n}\n\n.alert-banner__dismiss {\n  display: inline-flex;\n  flex: 0 0 auto;\n  align-items: center;\n  justify-content: center;\n  border: 0;\n  background: transparent;\n  color: inherit;\n  cursor: pointer;\n  padding: var(--ds-space-1);\n  line-height: 1;\n  font-size: 1.25rem;\n}\n\n.alert-banner__dismiss:focus-visible {\n  outline: 2px solid currentColor;\n  outline-offset: 1px;\n}\n",
+                    "styleUrl": "./alert-banner.scss"
+                }
+            ],
+            "stylesData": "",
+            "extends": [],
+            "accessors": {
+                "role": {
+                    "name": "role",
+                    "getSignature": {
+                        "name": "role",
+                        "type": "unknown",
+                        "returnType": "\"alert\" | \"status\"",
+                        "line": 26,
+                        "rawdescription": "\n",
+                        "description": ""
+                    }
+                },
+                "severityLabel": {
+                    "name": "severityLabel",
+                    "getSignature": {
+                        "name": "severityLabel",
+                        "type": "string",
+                        "returnType": "string",
+                        "line": 30,
+                        "rawdescription": "\n",
+                        "description": ""
+                    }
+                }
+            },
+            "relationships": {
+                "incoming": [],
+                "outgoing": []
+            },
+            "templateData": "<div\n  class=\"alert-banner\"\n  [class.alert-banner--error]=\"variant() === 'error'\"\n  [class.alert-banner--warning]=\"variant() === 'warning'\"\n  [class.alert-banner--success]=\"variant() === 'success'\"\n  [class.alert-banner--info]=\"variant() === 'info'\"\n  [attr.role]=\"role\"\n>\n  <p class=\"alert-banner__message\">\n    <span class=\"alert-banner__severity-label\">{{ severityLabel }}:</span>\n    {{ message() }}\n  </p>\n\n  <div class=\"alert-banner__actions\">\n    <ng-content select=\"[slot=primary-action]\" />\n    <ng-content select=\"[slot=secondary-action]\" />\n  </div>\n\n  @if (dismissible()) {\n    <button\n      type=\"button\"\n      class=\"alert-banner__dismiss\"\n      [attr.aria-label]=\"dismissLabel()\"\n      (click)=\"handleDismiss()\"\n    >\n      <span aria-hidden=\"true\">&times;</span>\n    </button>\n  }\n</div>\n"
+        },
         {
             "name": "Button",
             "id": "component-Button-0c35eb9c84eb438547552307af8e9911713ba485f0ce17ed04d03dbb41f2eab10cf1af28d4b29e6569ecf3fb7e1c7605370d8d4a5f415f152682ad21e9a13e37",
@@ -82,7 +307,7 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": ":host {\n  display: inline-block;\n}\n\n.button {\n  min-height: 2.75rem;\n  padding: var(--ds-space-3) var(--ds-space-6);\n  border: 0;\n  border-radius: var(--ds-radius-lg);\n  background: var(--ds-color-action-primary);\n  color: var(--ds-color-action-primary-text);\n  cursor: pointer;\n  font-family: var(--ds-font-family-base);\n  font-weight: var(--ds-font-weight-bold);\n  transition:\n    background-color 160ms ease,\n    transform 160ms ease;\n}\n\n.button:hover:not(:disabled) {\n  background: var(--ds-color-action-primary-hover);\n}\n\n.button:active:not(:disabled) {\n  transform: scale(0.98);\n}\n\n.button:focus-visible {\n  outline: 3px solid var(--ds-color-action-primary);\n  outline-offset: 3px;\n}\n\n.button:disabled {\n  cursor: not-allowed;\n  opacity: 0.5;\n}\n\n.button--secondary {\n  border: 1px solid var(--ds-color-border-default);\n  background: var(--ds-color-surface-default);\n  color: var(--ds-color-text-default);\n}\n\n.button--secondary:hover:not(:disabled) {\n  background: var(--ds-color-surface-subtle);\n}\n\n.button--ghost {\n  border: none;\n  background: none;\n  color: var(--ds-color-text-default);\n}\n\n.button--ghost:hover:not(:disabled) {\n  background: var(--ds-color-surface-subtle);\n}",
+                    "data": ":host {\n  display: inline-block;\n}\n\n.button {\n  min-height: 2.75rem;\n  padding: var(--ds-space-3) var(--ds-space-6);\n  border: 0;\n  border-radius: var(--ds-radius-lg);\n  background: var(--ds-color-action-primary);\n  color: var(--ds-color-action-primary-text);\n  cursor: pointer;\n  font-family: var(--ds-font-family-base);\n  font-weight: var(--ds-font-weight-bold);\n  transition:\n    background-color 160ms ease,\n    transform 160ms ease;\n}\n\n.button:hover:not(:disabled) {\n  background: var(--ds-color-action-primary-hover);\n}\n\n.button:active:not(:disabled) {\n  transform: scale(0.98);\n}\n\n.button:focus-visible {\n  outline: 3px solid var(--ds-color-text-default);\n  outline-offset: 3px;\n}\n\n.button:disabled {\n  cursor: not-allowed;\n  opacity: 0.5;\n}\n\n.button--secondary {\n  border: 1px solid var(--ds-color-border-default);\n  background: var(--ds-color-surface-default);\n  color: var(--ds-color-text-default);\n}\n\n.button--secondary:hover:not(:disabled) {\n  background: var(--ds-color-surface-subtle);\n}\n\n.button--ghost {\n  border: none;\n  background: none;\n  color: var(--ds-color-text-default);\n}\n\n.button--ghost:hover:not(:disabled) {\n  background: var(--ds-color-surface-subtle);\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .button {\n    transition: none;\n  }\n}",
                     "styleUrl": "./button.scss"
                 }
             ],
@@ -169,7 +394,7 @@
             "assetsDirs": [],
             "styleUrlsData": [
                 {
-                    "data": ":host {\n  display: block;\n}\n\n.card {\n  padding: var(--ds-space-4);\n  border: 1px solid var(--ds-color-border-default);\n  border-radius: var(--ds-radius-lg);\n  background: var(--ds-color-surface-default);\n  color: var(--ds-color-text-default);\n  font-family: var(--ds-font-family-base);\n}\n\n.card--subtle {\n  background: var(--ds-color-surface-subtle);\n  border-color: transparent;\n}\n\n.card--padding-sm {\n  padding: var(--ds-space-3);\n}\n\n.card--padding-lg {\n  padding: var(--ds-space-6);\n}\n",
+                    "data": ":host {\n  display: block;\n}\n\n.card {\n  padding: var(--ds-space-4);\n  border: 1px solid var(--ds-color-border-default);\n  border-radius: var(--ds-radius-lg);\n  background: var(--ds-color-surface-default);\n  color: var(--ds-color-text-default);\n  font-family: var(--ds-font-family-base);\n}\n\n.card--subtle {\n  background: var(--ds-color-surface-subtle);\n  border-color: var(--ds-color-border-default);\n}\n\n.card--padding-sm {\n  padding: var(--ds-space-3);\n}\n\n.card--padding-lg {\n  padding: var(--ds-space-6);\n}\n",
                     "styleUrl": "./card.scss"
                 }
             ],
@@ -226,6 +451,1444 @@
                 "incoming": [],
                 "outgoing": []
             }
+        },
+        {
+            "name": "Dropdown",
+            "id": "component-Dropdown-99b89dff38a16a5013f18afb9e1812a31c6caae3d05663a3327d799c87e4a70f4f727a169b7da08b214b1104db6580e13a93a7f8dcb7e44141af9a0ab1ebbfaf",
+            "file": "projects/design-system/src/lib/dropdown/dropdown.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [
+                {
+                    "name": ")"
+                }
+            ],
+            "selector": "ds-dropdown",
+            "styleUrls": [
+                "./dropdown.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./dropdown.html"
+            ],
+            "templateVariables": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "ariaLabel",
+                    "coverageIgnore": false,
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 55,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "autoFocus",
+                    "coverageIgnore": false,
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 53,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "clearable",
+                    "coverageIgnore": false,
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 47,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "clearAriaLabel",
+                    "coverageIgnore": false,
+                    "defaultValue": "'Clear selection'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 57,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "disabled",
+                    "coverageIgnore": false,
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 49,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "error",
+                    "coverageIgnore": false,
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 51,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "hint",
+                    "coverageIgnore": false,
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 52,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "label",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 43,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": true
+                },
+                {
+                    "name": "menuAriaLabel",
+                    "coverageIgnore": false,
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 56,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "multiple",
+                    "coverageIgnore": false,
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 45,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "options",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "DropdownOption<T>[]",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 42,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": true
+                },
+                {
+                    "name": "placeholder",
+                    "coverageIgnore": false,
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 44,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "readonly",
+                    "coverageIgnore": false,
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 50,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "searchable",
+                    "coverageIgnore": false,
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 46,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "size",
+                    "coverageIgnore": false,
+                    "defaultValue": "'medium'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "DropdownSize",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 48,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "activeIndex",
+                    "coverageIgnore": false,
+                    "defaultValue": "signal(-1)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 65,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "activeOptionId",
+                    "coverageIgnore": false,
+                    "defaultValue": "computed(() => {\n    const index = this.activeIndex();\n    const opts = this.filteredOptions();\n\n    if (index < 0 || index >= opts.length) {\n      return null;\n    }\n\n    return this.optionId(opts[index]);\n  })",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 125,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "document",
+                    "coverageIgnore": false,
+                    "defaultValue": "inject(DOCUMENT)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 84,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "dropdownId",
+                    "coverageIgnore": false,
+                    "defaultValue": "`ds-dropdown-${crypto.randomUUID()}`",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 79,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "elementRef",
+                    "coverageIgnore": false,
+                    "defaultValue": "inject(ElementRef<HTMLElement>)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 108,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "errorId",
+                    "coverageIgnore": false,
+                    "defaultValue": "`${this.dropdownId}-error`",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 82,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "filteredOptions",
+                    "coverageIgnore": false,
+                    "defaultValue": "computed(() => {\n    const term = this.searchTerm().trim().toLowerCase();\n\n    if (!term) {\n      return this.options();\n    }\n\n    return this.options().filter((option) =>\n      option.label.toLowerCase().includes(term)\n    );\n  })",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 113,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "formDisabled",
+                    "coverageIgnore": false,
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 60,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "hintId",
+                    "coverageIgnore": false,
+                    "defaultValue": "`${this.dropdownId}-hint`",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 81,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "isOpen",
+                    "coverageIgnore": false,
+                    "defaultValue": "signal(false)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 64,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "listboxId",
+                    "coverageIgnore": false,
+                    "defaultValue": "`${this.dropdownId}-listbox`",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 80,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "listboxRef",
+                    "coverageIgnore": false,
+                    "defaultValue": "viewChild<ElementRef<HTMLElement>>('listbox')",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 70,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "listboxStyle",
+                    "coverageIgnore": false,
+                    "defaultValue": "signal<{\n    top: string;\n    left: string;\n    width: string;\n  } | null>(null)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 73,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "onChange",
+                    "coverageIgnore": false,
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "function",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 61,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "onTouched",
+                    "coverageIgnore": false,
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "function",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 62,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "renderer",
+                    "coverageIgnore": false,
+                    "defaultValue": "inject(Renderer2)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 85,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "searchTerm",
+                    "coverageIgnore": false,
+                    "defaultValue": "signal('')",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 66,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "triggerRef",
+                    "coverageIgnore": false,
+                    "defaultValue": "viewChild<ElementRef<HTMLElement>>('trigger')",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 68,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "typeaheadBuffer",
+                    "coverageIgnore": false,
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 110,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "typeaheadTimeout",
+                    "coverageIgnore": false,
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ReturnType<typeof setTimeout> | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 111,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "value",
+                    "coverageIgnore": false,
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "T | T[] | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 59,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "clear",
+                    "coverageIgnore": false,
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 337,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "close",
+                    "coverageIgnore": false,
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 247,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "commitActive",
+                    "coverageIgnore": false,
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 293,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "handleDocumentClick",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "MouseEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 214,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "decorators": [
+                        {
+                            "name": "HostListener",
+                            "stringifiedArguments": "'document:click', ['$event']"
+                        }
+                    ],
+                    "modifierKind": [
+                        171,
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "MouseEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "handleSearchInput",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 346,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "handleTriggerKeydown",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "KeyboardEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 356,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "KeyboardEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "handleTypeahead",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "char",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 436,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "char",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "handleViewportChange",
+                    "coverageIgnore": false,
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 256,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "decorators": [
+                        {
+                            "name": "HostListener",
+                            "stringifiedArguments": "'window:scroll'"
+                        },
+                        {
+                            "name": "HostListener",
+                            "stringifiedArguments": "'window:resize'"
+                        }
+                    ],
+                    "modifierKind": [
+                        171,
+                        171,
+                        124
+                    ]
+                },
+                {
+                    "name": "hasValue",
+                    "coverageIgnore": false,
+                    "args": [],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 195,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "isSelected",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "option",
+                            "type": "DropdownOption<T>",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 187,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "option",
+                            "type": "DropdownOption<T>",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "moveActive",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "delta",
+                            "type": "number",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 425,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "delta",
+                            "type": "number",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "open",
+                    "coverageIgnore": false,
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 224,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "optionId",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "option",
+                            "type": "DropdownOption<T>",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 168,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "option",
+                            "type": "DropdownOption<T>",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnChange",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "onChange",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "T | T[] | null",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 156,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "jsdoctags": [
+                        {
+                            "name": "onChange",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "T | T[] | null",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnTouched",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "onTouched",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": []
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 160,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "jsdoctags": [
+                        {
+                            "name": "onTouched",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "removeOption",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "option",
+                            "type": "DropdownOption<T>",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 325,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "option",
+                            "type": "DropdownOption<T>",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "selectedOptions",
+                    "coverageIgnore": false,
+                    "args": [],
+                    "optional": false,
+                    "returnType": "DropdownOption[]",
+                    "typeParameters": [],
+                    "line": 172,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "selectOption",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "option",
+                            "type": "DropdownOption<T>",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 304,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "option",
+                            "type": "DropdownOption<T>",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setDisabledState",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 164,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "jsdoctags": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "toggleOpen",
+                    "coverageIgnore": false,
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 285,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "triggerLabel",
+                    "coverageIgnore": false,
+                    "args": [],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 199,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "updatePosition",
+                    "coverageIgnore": false,
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 269,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n\nPositions the listbox with `position: fixed` from the trigger's\nviewport coordinates, rather than `position: absolute` relative to\nthe host. Fixed positioning escapes any ancestor's `overflow: hidden`\nor `overflow: auto` (e.g. Storybook's docs-page story preview box),\nwhich absolute positioning does not.\n",
+                    "description": "<p>Positions the listbox with <code>position: fixed</code> from the trigger&#39;s\nviewport coordinates, rather than <code>position: absolute</code> relative to\nthe host. Fixed positioning escapes any ancestor&#39;s <code>overflow: hidden</code>\nor <code>overflow: auto</code> (e.g. Storybook&#39;s docs-page story preview box),\nwhich absolute positioning does not.</p>\n",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "writeValue",
+                    "coverageIgnore": false,
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "T | T[] | null",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 152,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n",
+                    "description": "",
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "T | T[] | null",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "coverageIgnore": false,
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [
+                {
+                    "coverageIgnore": false,
+                    "name": "document:click",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "MouseEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "argsDecorator": [
+                        "$event"
+                    ],
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 214
+                },
+                {
+                    "coverageIgnore": false,
+                    "name": "window:resize",
+                    "args": [],
+                    "argsDecorator": [],
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 256
+                },
+                {
+                    "coverageIgnore": false,
+                    "name": "window:scroll",
+                    "args": [],
+                    "argsDecorator": [],
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 256
+                }
+            ],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "Tag"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import {\n  Component,\n  ElementRef,\n  HostListener,\n  Renderer2,\n  computed,\n  effect,\n  forwardRef,\n  inject,\n  input,\n  signal,\n  viewChild,\n} from '@angular/core';\nimport { DOCUMENT } from '@angular/common';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\n\nimport { Tag } from '../tag/tag';\n\nexport interface DropdownOption<T> {\n  value: T;\n  label: string;\n}\n\ntype DropdownSize = 'small' | 'medium' | 'large';\n\nconst TYPEAHEAD_RESET_MS = 500;\n\n@Component({\n  selector: 'ds-dropdown',\n  imports: [Tag],\n  templateUrl: './dropdown.html',\n  styleUrl: './dropdown.scss',\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => Dropdown),\n      multi: true,\n    },\n  ],\n})\nexport class Dropdown<T> implements ControlValueAccessor {\n  readonly options = input.required<DropdownOption<T>[]>();\n  readonly label = input.required<string>();\n  readonly placeholder = input('');\n  readonly multiple = input(false);\n  readonly searchable = input(false);\n  readonly clearable = input(false);\n  readonly size = input<DropdownSize>('medium');\n  readonly disabled = input(false);\n  readonly readonly = input(false);\n  readonly error = input<string | null>(null);\n  readonly hint = input<string | null>(null);\n  readonly autoFocus = input(false);\n\n  readonly ariaLabel = input<string | null>(null);\n  readonly menuAriaLabel = input<string | null>(null);\n  readonly clearAriaLabel = input('Clear selection');\n\n  protected value: T | T[] | null = null;\n  private formDisabled = false;\n  private onChange: (value: T | T[] | null) => void = () => {};\n  private onTouched: () => void = () => {};\n\n  protected readonly isOpen = signal(false);\n  protected readonly activeIndex = signal(-1);\n  protected readonly searchTerm = signal('');\n\n  protected readonly triggerRef =\n    viewChild<ElementRef<HTMLElement>>('trigger');\n  protected readonly listboxRef =\n    viewChild<ElementRef<HTMLElement>>('listbox');\n\n  protected readonly listboxStyle = signal<{\n    top: string;\n    left: string;\n    width: string;\n  } | null>(null);\n\n  protected readonly dropdownId = `ds-dropdown-${crypto.randomUUID()}`;\n  protected readonly listboxId = `${this.dropdownId}-listbox`;\n  protected readonly hintId = `${this.dropdownId}-hint`;\n  protected readonly errorId = `${this.dropdownId}-error`;\n\n  private readonly document = inject(DOCUMENT);\n  private readonly renderer = inject(Renderer2);\n\n  constructor() {\n    /*\n     * Move the listbox to a direct child of <body> once it renders.\n     * A plain child element can get trapped inside an ancestor's\n     * `overflow: hidden`/`auto` (position: absolute) or an ancestor's\n     * `transform` (position: fixed — any transform, even the identity\n     * matrix, creates a new containing block per the CSS spec). Storybook's\n     * own docs-page zoom wrapper does exactly that. Re-parenting to <body>\n     * removes every such ancestor from the equation. Angular tracks this\n     * view by its own internal view refs, not by DOM parentage, so this\n     * is safe to do manually without @angular/cdk's Overlay/portal.\n     */\n    effect(() => {\n      const listbox = this.listboxRef()?.nativeElement;\n\n      if (listbox && listbox.parentElement !== this.document.body) {\n        this.renderer.appendChild(this.document.body, listbox);\n      }\n    });\n  }\n\n  private readonly elementRef = inject(ElementRef<HTMLElement>);\n\n  private typeaheadBuffer = '';\n  private typeaheadTimeout: ReturnType<typeof setTimeout> | null = null;\n\n  protected readonly filteredOptions = computed(() => {\n    const term = this.searchTerm().trim().toLowerCase();\n\n    if (!term) {\n      return this.options();\n    }\n\n    return this.options().filter((option) =>\n      option.label.toLowerCase().includes(term)\n    );\n  });\n\n  protected readonly activeOptionId = computed(() => {\n    const index = this.activeIndex();\n    const opts = this.filteredOptions();\n\n    if (index < 0 || index >= opts.length) {\n      return null;\n    }\n\n    return this.optionId(opts[index]);\n  });\n\n  protected get describedBy(): string | null {\n    if (this.error()) {\n      return this.errorId;\n    }\n\n    if (this.hint()) {\n      return this.hintId;\n    }\n\n    return null;\n  }\n\n  protected get isDisabled(): boolean {\n    return this.disabled() || this.formDisabled;\n  }\n\n  writeValue(value: T | T[] | null): void {\n    this.value = value ?? (this.multiple() ? [] : null);\n  }\n\n  registerOnChange(onChange: (value: T | T[] | null) => void): void {\n    this.onChange = onChange;\n  }\n\n  registerOnTouched(onTouched: () => void): void {\n    this.onTouched = onTouched;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.formDisabled = isDisabled;\n  }\n\n  protected optionId(option: DropdownOption<T>): string {\n    return `${this.dropdownId}-option-${this.options().indexOf(option)}`;\n  }\n\n  protected selectedOptions(): DropdownOption<T>[] {\n    if (this.multiple()) {\n      const values = (this.value as T[] | null) ?? [];\n      return this.options().filter((option) => values.includes(option.value));\n    }\n\n    const value = this.value as T | null;\n\n    if (value === null || value === undefined) {\n      return [];\n    }\n\n    return this.options().filter((option) => option.value === value);\n  }\n\n  protected isSelected(option: DropdownOption<T>): boolean {\n    if (this.multiple()) {\n      return ((this.value as T[] | null) ?? []).includes(option.value);\n    }\n\n    return this.value === option.value;\n  }\n\n  protected hasValue(): boolean {\n    return this.selectedOptions().length > 0;\n  }\n\n  protected triggerLabel(): string {\n    const selected = this.selectedOptions();\n\n    if (selected.length === 0) {\n      return this.placeholder();\n    }\n\n    if (this.multiple()) {\n      return `${selected.length} selected`;\n    }\n\n    return selected[0].label;\n  }\n\n  @HostListener('document:click', ['$event'])\n  protected handleDocumentClick(event: MouseEvent): void {\n    if (!this.isOpen()) {\n      return;\n    }\n\n    if (!this.elementRef.nativeElement.contains(event.target as Node)) {\n      this.close();\n    }\n  }\n\n  protected open(): void {\n    if (this.isDisabled || this.readonly() || this.isOpen()) {\n      return;\n    }\n\n    this.isOpen.set(true);\n    this.updatePosition();\n\n    const opts = this.filteredOptions();\n\n    if (opts.length === 0) {\n      this.activeIndex.set(-1);\n      return;\n    }\n\n    if (!this.multiple() && this.value !== null) {\n      const index = opts.findIndex((option) => option.value === this.value);\n      this.activeIndex.set(index >= 0 ? index : 0);\n    } else {\n      this.activeIndex.set(0);\n    }\n  }\n\n  protected close(): void {\n    this.isOpen.set(false);\n    this.activeIndex.set(-1);\n    this.searchTerm.set('');\n    this.onTouched();\n  }\n\n  @HostListener('window:scroll')\n  @HostListener('window:resize')\n  protected handleViewportChange(): void {\n    if (this.isOpen()) {\n      this.updatePosition();\n    }\n  }\n\n  /**\n   * Positions the listbox with `position: fixed` from the trigger's\n   * viewport coordinates, rather than `position: absolute` relative to\n   * the host. Fixed positioning escapes any ancestor's `overflow: hidden`\n   * or `overflow: auto` (e.g. Storybook's docs-page story preview box),\n   * which absolute positioning does not.\n   */\n  private updatePosition(): void {\n    const trigger = this.triggerRef()?.nativeElement;\n\n    if (!trigger) {\n      return;\n    }\n\n    const rect = trigger.getBoundingClientRect();\n\n    this.listboxStyle.set({\n      top: `${rect.bottom + 4}px`,\n      left: `${rect.left}px`,\n      width: `${rect.width}px`,\n    });\n  }\n\n  protected toggleOpen(): void {\n    if (this.isOpen()) {\n      this.close();\n    } else {\n      this.open();\n    }\n  }\n\n  protected commitActive(): void {\n    const opts = this.filteredOptions();\n    const index = this.activeIndex();\n\n    if (index < 0 || index >= opts.length) {\n      return;\n    }\n\n    this.selectOption(opts[index]);\n  }\n\n  protected selectOption(option: DropdownOption<T>): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    if (this.multiple()) {\n      const current = (this.value as T[] | null) ?? [];\n      const next = current.includes(option.value)\n        ? current.filter((value) => value !== option.value)\n        : [...current, option.value];\n\n      this.value = next;\n      this.onChange(next);\n      return;\n    }\n\n    this.value = option.value;\n    this.onChange(option.value);\n    this.close();\n  }\n\n  protected removeOption(option: DropdownOption<T>): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    const current = (this.value as T[] | null) ?? [];\n    const next = current.filter((value) => value !== option.value);\n\n    this.value = next;\n    this.onChange(next);\n  }\n\n  protected clear(): void {\n    if (this.isDisabled || this.readonly()) {\n      return;\n    }\n\n    this.value = this.multiple() ? [] : null;\n    this.onChange(this.value);\n  }\n\n  protected handleSearchInput(event: Event): void {\n    const target = event.target as HTMLInputElement;\n    this.searchTerm.set(target.value);\n    this.activeIndex.set(0);\n\n    if (!this.isOpen()) {\n      this.isOpen.set(true);\n    }\n  }\n\n  protected handleTriggerKeydown(event: KeyboardEvent): void {\n    switch (event.key) {\n      case 'ArrowDown':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.moveActive(1);\n        } else {\n          this.open();\n        }\n        break;\n\n      case 'ArrowUp':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.moveActive(-1);\n        } else {\n          this.open();\n        }\n        break;\n\n      case 'Home':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.activeIndex.set(0);\n        }\n        break;\n\n      case 'End':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.activeIndex.set(this.filteredOptions().length - 1);\n        }\n        break;\n\n      case 'Enter':\n        event.preventDefault();\n        if (this.isOpen()) {\n          this.commitActive();\n        } else if (!this.searchable()) {\n          this.open();\n        }\n        break;\n\n      case ' ':\n        if (!this.searchable()) {\n          event.preventDefault();\n          if (this.isOpen()) {\n            this.commitActive();\n          } else {\n            this.open();\n          }\n        }\n        break;\n\n      case 'Escape':\n        if (this.isOpen()) {\n          event.preventDefault();\n          this.close();\n        }\n        break;\n\n      default:\n        if (!this.searchable() && event.key.length === 1) {\n          this.handleTypeahead(event.key);\n        }\n        break;\n    }\n  }\n\n  private moveActive(delta: number): void {\n    const opts = this.filteredOptions();\n\n    if (opts.length === 0) {\n      return;\n    }\n\n    const next = this.activeIndex() + delta;\n    this.activeIndex.set(Math.min(Math.max(next, 0), opts.length - 1));\n  }\n\n  private handleTypeahead(char: string): void {\n    this.typeaheadBuffer += char.toLowerCase();\n\n    if (this.typeaheadTimeout) {\n      clearTimeout(this.typeaheadTimeout);\n    }\n\n    this.typeaheadTimeout = setTimeout(() => {\n      this.typeaheadBuffer = '';\n    }, TYPEAHEAD_RESET_MS);\n\n    const opts = this.filteredOptions();\n    const matchIndex = opts.findIndex((option) =>\n      option.label.toLowerCase().startsWith(this.typeaheadBuffer)\n    );\n\n    if (matchIndex >= 0) {\n      if (!this.isOpen()) {\n        this.open();\n      }\n      this.activeIndex.set(matchIndex);\n    }\n  }\n}\n",
+            "styleUrl": "./dropdown.scss",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ":host {\n  display: block;\n  width: 100%;\n  max-width: 28rem;\n  position: relative;\n  color: var(--ds-color-text-default);\n  font-family: var(--ds-font-family-base);\n}\n\n.dropdown__label {\n  display: block;\n  margin-bottom: var(--ds-space-2);\n  font-size: 0.875rem;\n  font-weight: var(--ds-font-weight-bold);\n}\n\n.dropdown__chips {\n  display: flex;\n  flex-wrap: wrap;\n  gap: var(--ds-space-1);\n  margin-bottom: var(--ds-space-2);\n}\n\n.dropdown__trigger-row {\n  position: relative;\n  display: flex;\n  align-items: center;\n  gap: var(--ds-space-2);\n}\n\n.dropdown__trigger {\n  box-sizing: border-box;\n  width: 100%;\n  min-height: 2.75rem;\n  padding: var(--ds-space-3) var(--ds-space-4);\n  border: 1px solid var(--ds-color-border-default);\n  border-radius: var(--ds-radius-md);\n  background: var(--ds-color-surface-default);\n  color: var(--ds-color-text-default);\n  font: inherit;\n  font-size: 1rem;\n  text-align: left;\n  cursor: pointer;\n  transition:\n    border-color 160ms ease,\n    box-shadow 160ms ease,\n    background-color 160ms ease;\n}\n\n.dropdown__trigger--button {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: var(--ds-space-2);\n}\n\n.dropdown__trigger--input {\n  cursor: text;\n}\n\n.dropdown__trigger-row--small .dropdown__trigger {\n  min-height: 2.25rem;\n  padding-block: var(--ds-space-2);\n  font-size: 0.875rem;\n}\n\n.dropdown__trigger-row--large .dropdown__trigger {\n  min-height: 3.25rem;\n  padding-block: var(--ds-space-4);\n  font-size: 1.125rem;\n}\n\n.dropdown__trigger:hover:not(:disabled) {\n  border-color: var(--ds-color-text-muted);\n}\n\n.dropdown__trigger:focus-visible {\n  border-color: var(--ds-color-action-primary);\n  outline: 3px solid color-mix(\n    in srgb,\n    var(--ds-color-action-primary) 35%,\n    transparent\n  );\n  outline-offset: 1px;\n}\n\n.dropdown__trigger:disabled {\n  background: var(--ds-color-surface-subtle);\n  cursor: not-allowed;\n  opacity: 0.6;\n}\n\n.dropdown__trigger-row--error .dropdown__trigger {\n  border-color: var(--ds-color-feedback-error);\n}\n\n.dropdown__trigger-label--placeholder {\n  color: var(--ds-color-text-muted);\n}\n\n.dropdown__chevron {\n  display: inline-flex;\n  flex: 0 0 auto;\n  font-size: 0.75rem;\n  color: var(--ds-color-text-muted);\n  transition: transform 160ms ease;\n}\n\n.dropdown__chevron--open {\n  transform: rotate(180deg);\n}\n\n.dropdown__clear {\n  position: absolute;\n  right: var(--ds-space-3);\n  top: 50%;\n  transform: translateY(-50%);\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  border: 0;\n  background: transparent;\n  color: var(--ds-color-text-muted);\n  cursor: pointer;\n  padding: var(--ds-space-1);\n  line-height: 1;\n  font-size: 1.25rem;\n}\n\n.dropdown__clear:focus-visible {\n  outline: 2px solid var(--ds-color-action-primary);\n  outline-offset: 1px;\n  border-radius: var(--ds-radius-sm);\n}\n\n.dropdown__listbox {\n  position: fixed;\n  z-index: 10;\n  margin: 0;\n  padding: var(--ds-space-1);\n  list-style: none;\n  max-height: 16rem;\n  overflow-y: auto;\n  border: 1px solid var(--ds-color-border-default);\n  border-radius: var(--ds-radius-md);\n  background: var(--ds-color-surface-default);\n  color: var(--ds-color-text-default);\n  font-family: var(--ds-font-family-base);\n  box-shadow: 0 4px 16px color-mix(in srgb, var(--ds-color-surface-inverse) 16%, transparent);\n}\n\n.dropdown__option {\n  padding: var(--ds-space-2) var(--ds-space-3);\n  border-radius: var(--ds-radius-sm);\n  font-size: 1rem;\n  cursor: pointer;\n}\n\n.dropdown__option:hover {\n  background: var(--ds-color-surface-subtle);\n}\n\n.dropdown__option--active {\n  background: var(--ds-color-surface-subtle);\n  outline: 2px solid var(--ds-color-action-primary);\n  outline-offset: -2px;\n}\n\n.dropdown__option--selected {\n  font-weight: var(--ds-font-weight-bold);\n}\n\n.dropdown__option--empty {\n  color: var(--ds-color-text-muted);\n  cursor: default;\n}\n\n.dropdown__option--empty:hover {\n  background: none;\n}\n\n.dropdown__hint,\n.dropdown__error {\n  margin: var(--ds-space-2) 0 0;\n  font-size: 0.875rem;\n}\n\n.dropdown__hint {\n  color: var(--ds-color-text-muted);\n}\n\n.dropdown__error {\n  color: var(--ds-color-feedback-error);\n  font-weight: var(--ds-font-weight-medium);\n}\n",
+                    "styleUrl": "./dropdown.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [],
+                "line": 85,
+                "rawdescription": "\n"
+            },
+            "extends": [],
+            "implements": [
+                "ControlValueAccessor"
+            ],
+            "accessors": {
+                "describedBy": {
+                    "name": "describedBy",
+                    "getSignature": {
+                        "name": "describedBy",
+                        "type": "unknown",
+                        "returnType": "string | null",
+                        "line": 136,
+                        "rawdescription": "\n",
+                        "description": ""
+                    }
+                },
+                "isDisabled": {
+                    "name": "isDisabled",
+                    "getSignature": {
+                        "name": "isDisabled",
+                        "type": "boolean",
+                        "returnType": "boolean",
+                        "line": 148,
+                        "rawdescription": "\n",
+                        "description": ""
+                    }
+                }
+            },
+            "relationships": {
+                "incoming": [],
+                "outgoing": [
+                    {
+                        "name": "Tag",
+                        "type": "component"
+                    },
+                    {
+                        "name": ")",
+                        "type": "injectable"
+                    },
+                    {
+                        "name": "ControlValueAccessor",
+                        "type": "interface"
+                    }
+                ]
+            },
+            "templateData": "<div class=\"dropdown\" (keydown)=\"handleTriggerKeydown($event)\">\n  <label class=\"dropdown__label\" [for]=\"dropdownId\">{{ label() }}</label>\n\n  @if (multiple() && selectedOptions().length > 0) {\n    <div class=\"dropdown__chips\">\n      @for (option of selectedOptions(); track option.value) {\n        <ds-tag\n          [dismissible]=\"!isDisabled && !readonly()\"\n          [dismissLabel]=\"'Remove ' + option.label\"\n          (dismissed)=\"removeOption(option)\"\n        >\n          {{ option.label }}\n        </ds-tag>\n      }\n    </div>\n  }\n\n  <div\n    class=\"dropdown__trigger-row\"\n    [class.dropdown__trigger-row--small]=\"size() === 'small'\"\n    [class.dropdown__trigger-row--large]=\"size() === 'large'\"\n    [class.dropdown__trigger-row--error]=\"!!error()\"\n    [class.dropdown__trigger-row--disabled]=\"isDisabled\"\n  >\n    @if (searchable()) {\n      <input\n        #trigger\n        class=\"dropdown__trigger dropdown__trigger--input\"\n        type=\"text\"\n        role=\"combobox\"\n        [id]=\"dropdownId\"\n        [value]=\"searchTerm()\"\n        [placeholder]=\"hasValue() ? triggerLabel() : placeholder()\"\n        [disabled]=\"isDisabled\"\n        [autofocus]=\"autoFocus()\"\n        [attr.aria-label]=\"ariaLabel()\"\n        [attr.aria-expanded]=\"isOpen()\"\n        [attr.aria-controls]=\"listboxId\"\n        [attr.aria-activedescendant]=\"activeOptionId()\"\n        [attr.aria-invalid]=\"error() ? 'true' : null\"\n        [attr.aria-describedby]=\"describedBy\"\n        aria-autocomplete=\"list\"\n        (input)=\"handleSearchInput($event)\"\n        (focus)=\"open()\"\n      />\n    } @else {\n      <button\n        #trigger\n        type=\"button\"\n        class=\"dropdown__trigger dropdown__trigger--button\"\n        [id]=\"dropdownId\"\n        [disabled]=\"isDisabled\"\n        [autofocus]=\"autoFocus()\"\n        aria-haspopup=\"listbox\"\n        [attr.aria-label]=\"ariaLabel()\"\n        [attr.aria-expanded]=\"isOpen()\"\n        [attr.aria-controls]=\"listboxId\"\n        [attr.aria-activedescendant]=\"activeOptionId()\"\n        [attr.aria-invalid]=\"error() ? 'true' : null\"\n        [attr.aria-describedby]=\"describedBy\"\n        (click)=\"toggleOpen()\"\n      >\n        <span\n          class=\"dropdown__trigger-label\"\n          [class.dropdown__trigger-label--placeholder]=\"!hasValue()\"\n        >\n          {{ triggerLabel() }}\n        </span>\n        <span class=\"dropdown__chevron\" [class.dropdown__chevron--open]=\"isOpen()\" aria-hidden=\"true\">\n          &#9662;\n        </span>\n      </button>\n    }\n\n    @if (clearable() && hasValue() && !isDisabled && !readonly()) {\n      <button\n        type=\"button\"\n        class=\"dropdown__clear\"\n        [attr.aria-label]=\"clearAriaLabel()\"\n        (click)=\"clear()\"\n      >\n        <span aria-hidden=\"true\">&times;</span>\n      </button>\n    }\n  </div>\n\n  <ul\n    #listbox\n    class=\"dropdown__listbox\"\n    role=\"listbox\"\n    [id]=\"listboxId\"\n    [hidden]=\"!isOpen()\"\n    [style.top]=\"listboxStyle()?.top\"\n    [style.left]=\"listboxStyle()?.left\"\n    [style.width]=\"listboxStyle()?.width\"\n    [attr.aria-multiselectable]=\"multiple() ? 'true' : null\"\n    [attr.aria-label]=\"menuAriaLabel()\"\n  >\n    @if (isOpen()) {\n      @for (option of filteredOptions(); track option.value) {\n        <li\n          [id]=\"optionId(option)\"\n          role=\"option\"\n          class=\"dropdown__option\"\n          [class.dropdown__option--active]=\"activeOptionId() === optionId(option)\"\n          [class.dropdown__option--selected]=\"isSelected(option)\"\n          [attr.aria-selected]=\"isSelected(option)\"\n          (click)=\"selectOption(option)\"\n        >\n          {{ option.label }}\n        </li>\n      } @empty {\n        <li class=\"dropdown__option dropdown__option--empty\">No options</li>\n      }\n    }\n  </ul>\n\n  @if (hint() && !error()) {\n    <p class=\"dropdown__hint\" [id]=\"hintId\">{{ hint() }}</p>\n  }\n\n  @if (error()) {\n    <p class=\"dropdown__error\" [id]=\"errorId\" role=\"alert\">{{ error() }}</p>\n  }\n</div>\n"
         },
         {
             "name": "Input",
@@ -930,7 +2593,12 @@
             "stylesData": "",
             "extends": [],
             "relationships": {
-                "incoming": [],
+                "incoming": [
+                    {
+                        "name": "Dropdown",
+                        "type": "component"
+                    }
+                ],
                 "outgoing": []
             },
             "templateData": "<span\n  class=\"tag\"\n  [class.tag--success]=\"variant() === 'success'\"\n  [class.tag--error]=\"variant() === 'error'\"\n  [class.tag--warning]=\"variant() === 'warning'\"\n  [class.tag--info]=\"variant() === 'info'\"\n>\n  <ng-content />\n  @if (dismissible()) {\n    <button\n      type=\"button\"\n      class=\"tag__dismiss\"\n      [attr.aria-label]=\"dismissLabel()\"\n      (click)=\"handleDismiss()\"\n    >\n      <span aria-hidden=\"true\">&times;</span>\n    </button>\n  }\n</span>\n"
@@ -939,6 +2607,28 @@
     "modules": [],
     "miscellaneous": {
         "variables": [
+            {
+                "name": "Announcement",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-alert-banner [variant]=\"variant\" [message]=\"message\" />\n    `,\n  }),\n  args: {\n    variant: 'info',\n    message: 'Scheduled maintenance this Saturday, 10pm–12am UTC.',\n  },\n}"
+            },
+            {
+                "name": "Clearable",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown\n        [options]=\"options\"\n        [label]=\"label\"\n        [placeholder]=\"placeholder\"\n        [clearable]=\"true\"\n        clearAriaLabel=\"Clear favorite fruit\"\n        [(ngModel)]=\"value\"\n      />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    placeholder: 'Select a fruit',\n    value: 'banana',\n  },\n  play: async ({ canvasElement }) => {\n    const canvas = within(canvasElement);\n    const trigger = canvas.getByRole('button', { name: 'Favorite fruit' });\n\n    await expect(trigger).toHaveTextContent('Banana');\n\n    await userEvent.click(canvas.getByRole('button', { name: 'Clear favorite fruit' }));\n\n    await expect(trigger).toHaveTextContent('Select a fruit');\n  },\n}"
+            },
             {
                 "name": "Default",
                 "ctype": "miscellaneous",
@@ -949,6 +2639,17 @@
                 "deprecationMessage": "",
                 "type": "Story",
                 "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-card [variant]=\"variant\" [padding]=\"padding\">\n        <h3>Plan usage</h3>\n        <p>You've used 8 of 10 seats this month.</p>\n      </ds-card>\n    `,\n  }),\n  args: {\n    variant: 'default',\n    padding: 'md',\n  },\n}"
+            },
+            {
+                "name": "Default",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown\n        [options]=\"options\"\n        [label]=\"label\"\n        [placeholder]=\"placeholder\"\n      />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    placeholder: 'Select a fruit',\n  },\n  play: async ({ canvasElement }) => {\n    const canvas = within(canvasElement);\n    const trigger = canvas.getByRole('button', { name: 'Favorite fruit' });\n\n    await userEvent.click(trigger);\n    await expect(trigger).toHaveAttribute('aria-expanded', 'true');\n\n    await userEvent.keyboard('{Enter}');\n\n    await expect(trigger).toHaveTextContent('Apple');\n    await expect(trigger).toHaveAttribute('aria-expanded', 'false');\n  },\n}"
             },
             {
                 "name": "Default",
@@ -976,12 +2677,34 @@
                 "name": "Disabled",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown\n        [options]=\"options\"\n        [label]=\"label\"\n        [placeholder]=\"placeholder\"\n        [disabled]=\"true\"\n      />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    placeholder: 'Select a fruit',\n  },\n}"
+            },
+            {
+                "name": "Disabled",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/design-system/src/lib/input/input.stories.ts",
                 "coverageIgnore": false,
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
                 "defaultValue": "{\n  args: {\n    label: 'Account email',\n    type: 'email',\n    value: 'alexandra@example.com',\n    disabled: true,\n  },\n}"
+            },
+            {
+                "name": "Dismissible",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-alert-banner\n        [variant]=\"variant\"\n        [message]=\"message\"\n        [dismissible]=\"true\"\n        (dismissed)=\"dismissed()\"\n      />\n    `,\n  }),\n  args: {\n    variant: 'info',\n    message: 'New comment on your post.',\n  },\n  play: async ({ canvasElement, args }) => {\n    const canvas = within(canvasElement);\n    await userEvent.click(canvas.getByRole('button', { name: 'Dismiss' }));\n    await expect(args.dismissed).toHaveBeenCalledOnce();\n  },\n}"
             },
             {
                 "name": "Dismissible",
@@ -1009,12 +2732,45 @@
                 "name": "Error",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-alert-banner [variant]=\"variant\" [message]=\"message\">\n        <ds-button slot=\"primary-action\" variant=\"secondary\">Try again</ds-button>\n      </ds-alert-banner>\n    `,\n  }),\n  args: {\n    variant: 'error',\n    message: \"We couldn't save your changes.\",\n  },\n}"
+            },
+            {
+                "name": "Error",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/design-system/src/lib/tag/tag.stories.ts",
                 "coverageIgnore": false,
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
                 "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `<ds-tag variant=\"error\">Failed</ds-tag>`,\n  }),\n}"
+            },
+            {
+                "name": "ErrorState",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown\n        [options]=\"options\"\n        [label]=\"label\"\n        [placeholder]=\"placeholder\"\n        [error]=\"error\"\n      />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    placeholder: 'Select a fruit',\n    error: 'Please select a fruit.',\n  },\n}"
+            },
+            {
+                "name": "fruitOptions",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "[]",
+                "defaultValue": "[\n  { value: 'apple', label: 'Apple' },\n  { value: 'banana', label: 'Banana' },\n  { value: 'cherry', label: 'Cherry' },\n  { value: 'date', label: 'Date' },\n  { value: 'elderberry', label: 'Elderberry' },\n]"
             },
             {
                 "name": "Ghost",
@@ -1037,6 +2793,39 @@
                 "deprecationMessage": "",
                 "type": "Story",
                 "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `<ds-tag variant=\"info\">New</ds-tag>`,\n  }),\n}"
+            },
+            {
+                "name": "Large",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown [options]=\"options\" [label]=\"label\" [placeholder]=\"placeholder\" size=\"large\" />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    placeholder: 'Select a fruit',\n  },\n}"
+            },
+            {
+                "name": "LongMessageOverflow",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <div style=\"max-width: 420px\">\n        <ds-alert-banner [variant]=\"variant\" [message]=\"message\" />\n      </div>\n    `,\n  }),\n  args: {\n    variant: 'info',\n    message:\n      'This is a deliberately long system announcement used to verify that the banner truncates its message with an ellipsis instead of wrapping or overflowing its container.',\n  },\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<AlertBanner>",
+                "defaultValue": "{\n  title: 'Feedback/Alert Banner',\n  component: AlertBanner,\n  decorators: [moduleMetadata({ imports: [Button] })],\n  tags: ['autodocs'],\n  args: {\n    dismissed: fn(),\n  },\n}"
             },
             {
                 "name": "meta",
@@ -1064,6 +2853,17 @@
                 "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<Dropdown<string>>",
+                "defaultValue": "{\n  title: 'Forms/Dropdown',\n  component: Dropdown,\n  decorators: [moduleMetadata({ imports: [FormsModule] })],\n  tags: ['autodocs'],\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/design-system/src/lib/input/input.stories.ts",
                 "coverageIgnore": false,
                 "deprecated": false,
@@ -1081,6 +2881,17 @@
                 "deprecationMessage": "",
                 "type": "Meta<Tag>",
                 "defaultValue": "{\n  title: 'Data Display/Tag',\n  component: Tag,\n  tags: ['autodocs'],\n  args: {\n    dismissed: fn(),\n  },\n}"
+            },
+            {
+                "name": "Multiple",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown\n        [options]=\"options\"\n        [label]=\"label\"\n        [placeholder]=\"placeholder\"\n        [multiple]=\"true\"\n        [(ngModel)]=\"value\"\n      />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruits',\n    placeholder: 'Select fruits',\n    value: ['apple', 'banana'],\n  },\n  play: async ({ canvasElement }) => {\n    const canvas = within(canvasElement);\n\n    await expect(canvas.getAllByRole('button', { name: /^Remove/ })).toHaveLength(2);\n\n    await userEvent.click(canvas.getByRole('button', { name: 'Remove Apple' }));\n\n    await expect(canvas.getAllByRole('button', { name: /^Remove/ })).toHaveLength(1);\n  },\n}"
             },
             {
                 "name": "Neutral",
@@ -1124,7 +2935,18 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Play\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'primary',\n    disabled: false,\n  },\n}"
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Play\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'primary',\n    disabled: false,\n  },\n  play: async ({ canvasElement }) => {\n    const button = canvasElement.querySelector('button');\n    if (!button) {\n      throw new Error('Button not found');\n    }\n    await userEvent.tab();\n    await expect(button).toHaveFocus();\n    await userEvent.keyboard('{Enter}');\n  },\n}"
+            },
+            {
+                "name": "Readonly",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown\n        [options]=\"options\"\n        [label]=\"label\"\n        [readonly]=\"true\"\n        [(ngModel)]=\"value\"\n      />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    value: 'cherry',\n  },\n}"
             },
             {
                 "name": "Required",
@@ -1149,6 +2971,17 @@
                 "defaultValue": "{\n  args: {\n    label: 'Search',\n    placeholder: 'Search tracks',\n    type: 'search',\n  },\n}"
             },
             {
+                "name": "Searchable",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown\n        [options]=\"options\"\n        [label]=\"label\"\n        [placeholder]=\"placeholder\"\n        [searchable]=\"true\"\n      />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    placeholder: 'Search a fruit',\n  },\n}"
+            },
+            {
                 "name": "Secondary",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -1158,6 +2991,28 @@
                 "deprecationMessage": "",
                 "type": "Story",
                 "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Cancel\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'secondary',\n    disabled: false,\n  },\n}"
+            },
+            {
+                "name": "severityLabels",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/alert-banner/alert-banner.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Record<AlertBannerVariant, string>",
+                "defaultValue": "{\n  error: 'Error',\n  warning: 'Warning',\n  success: 'Success',\n  info: 'Info',\n}"
+            },
+            {
+                "name": "Small",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown [options]=\"options\" [label]=\"label\" [placeholder]=\"placeholder\" size=\"small\" />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    placeholder: 'Select a fruit',\n  },\n}"
             },
             {
                 "name": "Subtle",
@@ -1174,12 +3029,45 @@
                 "name": "Success",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-alert-banner [variant]=\"variant\" [message]=\"message\" />\n    `,\n  }),\n  args: {\n    variant: 'success',\n    message: 'Your export is ready to download.',\n  },\n}"
+            },
+            {
+                "name": "Success",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/design-system/src/lib/tag/tag.stories.ts",
                 "coverageIgnore": false,
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
                 "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `<ds-tag variant=\"success\">Active</ds-tag>`,\n  }),\n}"
+            },
+            {
+                "name": "TYPEAHEAD_RESET_MS",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/dropdown/dropdown.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "number",
+                "defaultValue": "500"
+            },
+            {
+                "name": "UpgradeOpportunity",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-alert-banner [variant]=\"variant\" [message]=\"message\">\n        <ds-button slot=\"primary-action\" variant=\"secondary\">Upgrade now</ds-button>\n        <ds-button slot=\"secondary-action\" variant=\"ghost\">Not now</ds-button>\n      </ds-alert-banner>\n    `,\n  }),\n  args: {\n    variant: 'warning',\n    message: 'Your trial ends in 3 days.',\n  },\n}"
             },
             {
                 "name": "Warning",
@@ -1217,6 +3105,19 @@
         ],
         "functions": [],
         "typealiases": [
+            {
+                "name": "AlertBannerVariant",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "\"error\" | \"warning\" | \"success\" | \"info\"",
+                "file": "projects/design-system/src/lib/alert-banner/alert-banner.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 193
+            },
             {
                 "name": "ButtonVariant",
                 "ctype": "miscellaneous",
@@ -1257,6 +3158,19 @@
                 "kind": 193
             },
             {
+                "name": "DropdownSize",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "\"small\" | \"medium\" | \"large\"",
+                "file": "projects/design-system/src/lib/dropdown/dropdown.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 193
+            },
+            {
                 "name": "InputSize",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
@@ -1287,6 +3201,19 @@
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
                 "coverageIgnore": false,
+                "rawtype": "StoryObj<AlertBanner>",
+                "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
                 "rawtype": "StoryObj<Button>",
                 "file": "projects/design-system/src/lib/button/button.stories.ts",
                 "deprecated": false,
@@ -1302,6 +3229,19 @@
                 "coverageIgnore": false,
                 "rawtype": "StoryObj<Card>",
                 "file": "projects/design-system/src/lib/card/card.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "StoryObj<Dropdown<string>>",
+                "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "rawdescription": "",
@@ -1350,6 +3290,208 @@
         ],
         "enumerations": [],
         "groupedVariables": {
+            "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts": [
+                {
+                    "name": "Announcement",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-alert-banner [variant]=\"variant\" [message]=\"message\" />\n    `,\n  }),\n  args: {\n    variant: 'info',\n    message: 'Scheduled maintenance this Saturday, 10pm–12am UTC.',\n  },\n}"
+                },
+                {
+                    "name": "Dismissible",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-alert-banner\n        [variant]=\"variant\"\n        [message]=\"message\"\n        [dismissible]=\"true\"\n        (dismissed)=\"dismissed()\"\n      />\n    `,\n  }),\n  args: {\n    variant: 'info',\n    message: 'New comment on your post.',\n  },\n  play: async ({ canvasElement, args }) => {\n    const canvas = within(canvasElement);\n    await userEvent.click(canvas.getByRole('button', { name: 'Dismiss' }));\n    await expect(args.dismissed).toHaveBeenCalledOnce();\n  },\n}"
+                },
+                {
+                    "name": "Error",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-alert-banner [variant]=\"variant\" [message]=\"message\">\n        <ds-button slot=\"primary-action\" variant=\"secondary\">Try again</ds-button>\n      </ds-alert-banner>\n    `,\n  }),\n  args: {\n    variant: 'error',\n    message: \"We couldn't save your changes.\",\n  },\n}"
+                },
+                {
+                    "name": "LongMessageOverflow",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <div style=\"max-width: 420px\">\n        <ds-alert-banner [variant]=\"variant\" [message]=\"message\" />\n      </div>\n    `,\n  }),\n  args: {\n    variant: 'info',\n    message:\n      'This is a deliberately long system announcement used to verify that the banner truncates its message with an ellipsis instead of wrapping or overflowing its container.',\n  },\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<AlertBanner>",
+                    "defaultValue": "{\n  title: 'Feedback/Alert Banner',\n  component: AlertBanner,\n  decorators: [moduleMetadata({ imports: [Button] })],\n  tags: ['autodocs'],\n  args: {\n    dismissed: fn(),\n  },\n}"
+                },
+                {
+                    "name": "Success",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-alert-banner [variant]=\"variant\" [message]=\"message\" />\n    `,\n  }),\n  args: {\n    variant: 'success',\n    message: 'Your export is ready to download.',\n  },\n}"
+                },
+                {
+                    "name": "UpgradeOpportunity",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-alert-banner [variant]=\"variant\" [message]=\"message\">\n        <ds-button slot=\"primary-action\" variant=\"secondary\">Upgrade now</ds-button>\n        <ds-button slot=\"secondary-action\" variant=\"ghost\">Not now</ds-button>\n      </ds-alert-banner>\n    `,\n  }),\n  args: {\n    variant: 'warning',\n    message: 'Your trial ends in 3 days.',\n  },\n}"
+                }
+            ],
+            "projects/design-system/src/lib/dropdown/dropdown.stories.ts": [
+                {
+                    "name": "Clearable",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown\n        [options]=\"options\"\n        [label]=\"label\"\n        [placeholder]=\"placeholder\"\n        [clearable]=\"true\"\n        clearAriaLabel=\"Clear favorite fruit\"\n        [(ngModel)]=\"value\"\n      />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    placeholder: 'Select a fruit',\n    value: 'banana',\n  },\n  play: async ({ canvasElement }) => {\n    const canvas = within(canvasElement);\n    const trigger = canvas.getByRole('button', { name: 'Favorite fruit' });\n\n    await expect(trigger).toHaveTextContent('Banana');\n\n    await userEvent.click(canvas.getByRole('button', { name: 'Clear favorite fruit' }));\n\n    await expect(trigger).toHaveTextContent('Select a fruit');\n  },\n}"
+                },
+                {
+                    "name": "Default",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown\n        [options]=\"options\"\n        [label]=\"label\"\n        [placeholder]=\"placeholder\"\n      />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    placeholder: 'Select a fruit',\n  },\n  play: async ({ canvasElement }) => {\n    const canvas = within(canvasElement);\n    const trigger = canvas.getByRole('button', { name: 'Favorite fruit' });\n\n    await userEvent.click(trigger);\n    await expect(trigger).toHaveAttribute('aria-expanded', 'true');\n\n    await userEvent.keyboard('{Enter}');\n\n    await expect(trigger).toHaveTextContent('Apple');\n    await expect(trigger).toHaveAttribute('aria-expanded', 'false');\n  },\n}"
+                },
+                {
+                    "name": "Disabled",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown\n        [options]=\"options\"\n        [label]=\"label\"\n        [placeholder]=\"placeholder\"\n        [disabled]=\"true\"\n      />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    placeholder: 'Select a fruit',\n  },\n}"
+                },
+                {
+                    "name": "ErrorState",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown\n        [options]=\"options\"\n        [label]=\"label\"\n        [placeholder]=\"placeholder\"\n        [error]=\"error\"\n      />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    placeholder: 'Select a fruit',\n    error: 'Please select a fruit.',\n  },\n}"
+                },
+                {
+                    "name": "fruitOptions",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "[]",
+                    "defaultValue": "[\n  { value: 'apple', label: 'Apple' },\n  { value: 'banana', label: 'Banana' },\n  { value: 'cherry', label: 'Cherry' },\n  { value: 'date', label: 'Date' },\n  { value: 'elderberry', label: 'Elderberry' },\n]"
+                },
+                {
+                    "name": "Large",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown [options]=\"options\" [label]=\"label\" [placeholder]=\"placeholder\" size=\"large\" />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    placeholder: 'Select a fruit',\n  },\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<Dropdown<string>>",
+                    "defaultValue": "{\n  title: 'Forms/Dropdown',\n  component: Dropdown,\n  decorators: [moduleMetadata({ imports: [FormsModule] })],\n  tags: ['autodocs'],\n}"
+                },
+                {
+                    "name": "Multiple",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown\n        [options]=\"options\"\n        [label]=\"label\"\n        [placeholder]=\"placeholder\"\n        [multiple]=\"true\"\n        [(ngModel)]=\"value\"\n      />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruits',\n    placeholder: 'Select fruits',\n    value: ['apple', 'banana'],\n  },\n  play: async ({ canvasElement }) => {\n    const canvas = within(canvasElement);\n\n    await expect(canvas.getAllByRole('button', { name: /^Remove/ })).toHaveLength(2);\n\n    await userEvent.click(canvas.getByRole('button', { name: 'Remove Apple' }));\n\n    await expect(canvas.getAllByRole('button', { name: /^Remove/ })).toHaveLength(1);\n  },\n}"
+                },
+                {
+                    "name": "Readonly",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown\n        [options]=\"options\"\n        [label]=\"label\"\n        [readonly]=\"true\"\n        [(ngModel)]=\"value\"\n      />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    value: 'cherry',\n  },\n}"
+                },
+                {
+                    "name": "Searchable",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown\n        [options]=\"options\"\n        [label]=\"label\"\n        [placeholder]=\"placeholder\"\n        [searchable]=\"true\"\n      />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    placeholder: 'Search a fruit',\n  },\n}"
+                },
+                {
+                    "name": "Small",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown [options]=\"options\" [label]=\"label\" [placeholder]=\"placeholder\" size=\"small\" />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    placeholder: 'Select a fruit',\n  },\n}"
+                }
+            ],
             "projects/design-system/src/lib/card/card.stories.ts": [
                 {
                     "name": "Default",
@@ -1529,7 +3671,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Play\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'primary',\n    disabled: false,\n  },\n}"
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Play\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'primary',\n    disabled: false,\n  },\n  play: async ({ canvasElement }) => {\n    const button = canvasElement.querySelector('button');\n    if (!button) {\n      throw new Error('Button not found');\n    }\n    await userEvent.tab();\n    await expect(button).toHaveFocus();\n    await userEvent.keyboard('{Enter}');\n  },\n}"
                 },
                 {
                     "name": "Secondary",
@@ -1634,11 +3776,52 @@
                     "type": "Preview",
                     "defaultValue": "{\n  parameters: {\n    controls: {\n      matchers: {\n        color: /(background|color)$/i,\n        date: /Date$/i,\n      },\n    },\n  },\n}"
                 }
+            ],
+            "projects/design-system/src/lib/alert-banner/alert-banner.ts": [
+                {
+                    "name": "severityLabels",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/alert-banner/alert-banner.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Record<AlertBannerVariant, string>",
+                    "defaultValue": "{\n  error: 'Error',\n  warning: 'Warning',\n  success: 'Success',\n  info: 'Info',\n}"
+                }
+            ],
+            "projects/design-system/src/lib/dropdown/dropdown.ts": [
+                {
+                    "name": "TYPEAHEAD_RESET_MS",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/dropdown/dropdown.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "defaultValue": "500"
+                }
             ]
         },
         "groupedFunctions": {},
         "groupedEnumerations": {},
         "groupedTypeAliases": {
+            "projects/design-system/src/lib/alert-banner/alert-banner.ts": [
+                {
+                    "name": "AlertBannerVariant",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "\"error\" | \"warning\" | \"success\" | \"info\"",
+                    "file": "projects/design-system/src/lib/alert-banner/alert-banner.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 193
+                }
+            ],
             "projects/design-system/src/lib/button/button.ts": [
                 {
                     "name": "ButtonVariant",
@@ -1682,6 +3865,21 @@
                     "kind": 193
                 }
             ],
+            "projects/design-system/src/lib/dropdown/dropdown.ts": [
+                {
+                    "name": "DropdownSize",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "\"small\" | \"medium\" | \"large\"",
+                    "file": "projects/design-system/src/lib/dropdown/dropdown.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 193
+                }
+            ],
             "projects/design-system/src/lib/input/input.ts": [
                 {
                     "name": "InputSize",
@@ -1710,6 +3908,21 @@
                     "kind": 193
                 }
             ],
+            "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "StoryObj<AlertBanner>",
+                    "file": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
             "projects/design-system/src/lib/button/button.stories.ts": [
                 {
                     "name": "Story",
@@ -1733,6 +3946,21 @@
                     "coverageIgnore": false,
                     "rawtype": "StoryObj<Card>",
                     "file": "projects/design-system/src/lib/card/card.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/design-system/src/lib/dropdown/dropdown.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "StoryObj<Dropdown<string>>",
+                    "file": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "rawdescription": "",
@@ -1802,6 +4030,115 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
                 "name": "preview",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Announcement",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Dismissible",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Error",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "LongMessageOverflow",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Success",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "UpgradeOpportunity",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/alert-banner/alert-banner.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/alert-banner/alert-banner.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "AlertBanner",
+                "coveragePercent": 0,
+                "coverageCount": "0/7",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/alert-banner/alert-banner.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "severityLabels",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/alert-banner/alert-banner.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "AlertBannerVariant",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
@@ -1959,6 +4296,164 @@
                 "type": "component",
                 "linktype": "component",
                 "name": "DesignSystem",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Clearable",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Default",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Disabled",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "ErrorState",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "fruitOptions",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Large",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Multiple",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Readonly",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Searchable",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Small",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "Dropdown",
+                "coveragePercent": 1,
+                "coverageCount": "1/64",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "DropdownOption",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "TYPEAHEAD_RESET_MS",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/dropdown/dropdown.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "DropdownSize",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"

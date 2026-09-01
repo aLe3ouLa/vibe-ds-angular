@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/angular-vite';
+import { expect, userEvent } from 'storybook/test';
+
 import { Button } from './button';
 
 const meta: Meta<Button> = {
@@ -23,6 +25,15 @@ export const Primary: Story = {
   args: {
     variant: 'primary',
     disabled: false,
+  },
+  play: async ({ canvasElement }) => {
+    const button = canvasElement.querySelector('button');
+    if (!button) {
+      throw new Error('Button not found');
+    }
+    await userEvent.tab();
+    await expect(button).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
   },
 };
 

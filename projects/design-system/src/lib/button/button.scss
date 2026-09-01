@@ -26,7 +26,7 @@
 }
 
 .button:focus-visible {
-  outline: 3px solid var(--ds-color-action-primary);
+  outline: 3px solid var(--ds-color-text-default);
   outline-offset: 3px;
 }
 
@@ -53,4 +53,10 @@
 
 .button--ghost:hover:not(:disabled) {
   background: var(--ds-color-surface-subtle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
 }

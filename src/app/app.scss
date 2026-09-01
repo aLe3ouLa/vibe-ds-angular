@@ -1,0 +1,43 @@
+.page {
+  display: flex;
+  justify-content: center;
+  padding: var(--ds-space-8);
+}
+
+ds-card {
+  display: block;
+  width: 100%;
+  max-width: 32rem;
+}
+
+h1 {
+  margin: 0 0 var(--ds-space-6);
+  font-family: var(--ds-font-family-base);
+}
+
+h2 {
+  margin: 0 0 var(--ds-space-2);
+  font-family: var(--ds-font-family-base);
+  font-size: 1rem;
+}
+
+ds-input {
+  display: block;
+  margin-bottom: var(--ds-space-6);
+}
+
+.roles {
+  margin-bottom: var(--ds-space-6);
+}
+
+.roles__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-space-2);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ds-space-3);
+}

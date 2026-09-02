@@ -20,6 +20,15 @@
       "storybook": "Actions/Button"
     },
     {
+      "name": "ds-dropdown",
+      "compodocName": "Dropdown",
+      "category": "Forms",
+      "status": "stable",
+      "documentation": "docs/components/dropdown.md",
+      "decisionRecord": "docs/governance/decisions/006-dropdown.md",
+      "storybook": "Forms/Dropdown"
+    },
+    {
       "name": "ds-input",
       "compodocName": "Input",
       "category": "Forms",

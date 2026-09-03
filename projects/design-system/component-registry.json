@@ -54,6 +54,24 @@
       "documentation": "docs/components/tag.md",
       "decisionRecord": "docs/governance/decisions/004-tag.md",
       "storybook": "Data Display/Tag"
+    },
+    {
+      "name": "ds-empty-state",
+      "compodocName": "EmptyState",
+      "category": "Data Display",
+      "status": "stable",
+      "documentation": "docs/components/empty-state.md",
+      "decisionRecord": "docs/governance/decisions/007-empty-state.md",
+      "storybook": "Data Display/Empty State"
+    },
+    {
+      "name": "ds-table",
+      "compodocName": "Table",
+      "category": "Data Display",
+      "status": "stable",
+      "documentation": "docs/components/table.md",
+      "decisionRecord": "docs/governance/decisions/008-table.md",
+      "storybook": "Data Display/Table"
     }
   ]
 }

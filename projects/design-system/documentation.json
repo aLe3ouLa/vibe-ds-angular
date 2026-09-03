@@ -1853,6 +1853,98 @@
             "templateData": "<div class=\"dropdown\">\n  <label class=\"dropdown__label\" [for]=\"dropdownId\">{{ label() }}</label>\n\n  @if (multiple() && selectedOptions().length > 0) {\n    <div class=\"dropdown__chips\">\n      @for (option of selectedOptions(); track option.value) {\n        <ds-tag\n          [dismissible]=\"!isDisabled && !readonly()\"\n          [dismissLabel]=\"'Remove ' + option.label\"\n          (dismissed)=\"removeOption(option)\"\n        >\n          {{ option.label }}\n        </ds-tag>\n      }\n    </div>\n  }\n\n  <div\n    class=\"dropdown__trigger-row\"\n    [class.dropdown__trigger-row--small]=\"size() === 'small'\"\n    [class.dropdown__trigger-row--large]=\"size() === 'large'\"\n    [class.dropdown__trigger-row--error]=\"!!error()\"\n    [class.dropdown__trigger-row--disabled]=\"isDisabled\"\n  >\n    @if (searchable()) {\n      <input\n        #trigger\n        class=\"dropdown__trigger dropdown__trigger--input\"\n        type=\"text\"\n        role=\"combobox\"\n        [id]=\"dropdownId\"\n        [value]=\"searchTerm()\"\n        [placeholder]=\"hasValue() ? triggerLabel() : placeholder()\"\n        [disabled]=\"isDisabled\"\n        [readOnly]=\"readonly()\"\n        [autofocus]=\"autoFocus()\"\n        [attr.aria-label]=\"ariaLabel()\"\n        [attr.aria-expanded]=\"isOpen()\"\n        [attr.aria-controls]=\"listboxId\"\n        [attr.aria-activedescendant]=\"activeOptionId()\"\n        [attr.aria-invalid]=\"error() ? 'true' : null\"\n        [attr.aria-describedby]=\"describedBy\"\n        [attr.aria-readonly]=\"readonly() ? 'true' : null\"\n        aria-autocomplete=\"list\"\n        (input)=\"handleSearchInput($event)\"\n        (focus)=\"open()\"\n        (keydown)=\"handleTriggerKeydown($event)\"\n      />\n    } @else {\n      <button\n        #trigger\n        type=\"button\"\n        class=\"dropdown__trigger dropdown__trigger--button\"\n        [id]=\"dropdownId\"\n        [disabled]=\"isDisabled\"\n        [autofocus]=\"autoFocus()\"\n        aria-haspopup=\"listbox\"\n        [attr.aria-label]=\"ariaLabel()\"\n        [attr.aria-expanded]=\"isOpen()\"\n        [attr.aria-controls]=\"listboxId\"\n        [attr.aria-activedescendant]=\"activeOptionId()\"\n        [attr.aria-invalid]=\"error() ? 'true' : null\"\n        [attr.aria-describedby]=\"describedBy\"\n        (click)=\"toggleOpen()\"\n        (keydown)=\"handleTriggerKeydown($event)\"\n      >\n        <span\n          class=\"dropdown__trigger-label\"\n          [class.dropdown__trigger-label--placeholder]=\"!hasValue()\"\n        >\n          {{ triggerLabel() }}\n        </span>\n        <span class=\"dropdown__chevron\" [class.dropdown__chevron--open]=\"isOpen()\" aria-hidden=\"true\">\n          &#9662;\n        </span>\n      </button>\n    }\n\n    @if (clearable() && hasValue() && !isDisabled && !readonly()) {\n      <button\n        type=\"button\"\n        class=\"dropdown__clear\"\n        [attr.aria-label]=\"clearAriaLabel()\"\n        (click)=\"clear()\"\n      >\n        <span aria-hidden=\"true\">&times;</span>\n      </button>\n    }\n  </div>\n\n  <ul\n    #listbox\n    class=\"dropdown__listbox\"\n    role=\"listbox\"\n    [id]=\"listboxId\"\n    [hidden]=\"!isOpen()\"\n    [style.top]=\"listboxStyle()?.top\"\n    [style.left]=\"listboxStyle()?.left\"\n    [style.width]=\"listboxStyle()?.width\"\n    [attr.aria-multiselectable]=\"multiple() ? 'true' : null\"\n    [attr.aria-label]=\"menuAriaLabel()\"\n  >\n    @if (isOpen()) {\n      @for (option of filteredOptions(); track option.value) {\n        <li\n          [id]=\"dropdownId + '-option-' + $index\"\n          role=\"option\"\n          class=\"dropdown__option\"\n          [class.dropdown__option--active]=\"activeIndex() === $index\"\n          [class.dropdown__option--selected]=\"isSelected(option)\"\n          [attr.aria-selected]=\"isSelected(option)\"\n          (click)=\"selectOption(option)\"\n        >\n          {{ option.label }}\n        </li>\n      } @empty {\n        <li role=\"option\" aria-disabled=\"true\" class=\"dropdown__option dropdown__option--empty\">No options</li>\n      }\n    }\n  </ul>\n\n  @if (hint() && !error()) {\n    <p class=\"dropdown__hint\" [id]=\"hintId\">{{ hint() }}</p>\n  }\n\n  @if (error()) {\n    <p class=\"dropdown__error\" [id]=\"errorId\" role=\"alert\">{{ error() }}</p>\n  }\n</div>\n"
         },
         {
+            "name": "EmptyState",
+            "id": "component-EmptyState-47aa4ac7d0354a15693d4a69aba27a5ee0b8dd0343a9cc3b76cd677a97116738a4f5417b28562e28cc1733617b5e21ae645d736ae7eab2c1f44c4ceb8901dfa9",
+            "file": "projects/design-system/src/lib/empty-state/empty-state.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "host": {},
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "ds-empty-state",
+            "styleUrls": [
+                "./empty-state.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./empty-state.html"
+            ],
+            "templateVariables": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "message",
+                    "coverageIgnore": false,
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 12,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "title",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 11,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": true
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "coverageIgnore": false,
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, input } from '@angular/core';\n\n@Component({\n  selector: 'ds-empty-state',\n  imports: [],\n  templateUrl: './empty-state.html',\n  styleUrl: './empty-state.scss',\n  host: { role: 'status' },\n})\nexport class EmptyState {\n  readonly title = input.required<string>();\n  readonly message = input<string | null>(null);\n}\n",
+            "styleUrl": "./empty-state.scss",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ":host {\n  display: block;\n}\n\n.empty-state {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: var(--ds-space-2);\n  padding: var(--ds-space-8) var(--ds-space-4);\n  text-align: center;\n  font-family: var(--ds-font-family-base);\n}\n\n.empty-state__icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n\n.empty-state__icon:empty {\n  display: none;\n}\n\n.empty-state__title {\n  margin: 0;\n  color: var(--ds-color-text-default);\n  font-weight: var(--ds-font-weight-medium);\n  font-size: 1rem;\n}\n\n.empty-state__message {\n  margin: 0;\n  color: var(--ds-color-text-muted);\n  font-size: 0.875rem;\n}\n",
+                    "styleUrl": "./empty-state.scss"
+                }
+            ],
+            "stylesData": "",
+            "extends": [],
+            "relationships": {
+                "incoming": [
+                    {
+                        "name": "Table",
+                        "type": "component"
+                    }
+                ],
+                "outgoing": []
+            },
+            "templateData": "<div class=\"empty-state\">\n  <div class=\"empty-state__icon\">\n    <ng-content select=\"[slot=icon]\" />\n  </div>\n  <p class=\"empty-state__title\">{{ title() }}</p>\n  @if (message()) {\n    <p class=\"empty-state__message\">{{ message() }}</p>\n  }\n</div>\n"
+        },
+        {
             "name": "Input",
             "id": "component-Input-720db7d56eae76ae6b66b03c673d5be4a67d782033714c1337078d0f64e217a3dec81b1e89552f2e8b83c15ac3c64a9a690126869210241341f18712fca3036e",
             "file": "projects/design-system/src/lib/input/input.ts",
@@ -2423,6 +2515,373 @@
             "templateData": "<label class=\"label\" [for]=\"inputId\">\n  {{ label() }}\n</label>\n\n<input\n  class=\"input\"\n  [id]=\"inputId\"\n  [type]=\"type()\"\n  [value]=\"value\"\n  [placeholder]=\"placeholder()\"\n  [required]=\"required()\"\n  [disabled]=\"isDisabled\"\n  [attr.aria-required]=\"required() ? 'true' : null\"\n  [attr.aria-invalid]=\"error() ? 'true' : null\"\n  [attr.aria-describedby]=\"describedBy\"\n  (input)=\"handleInput($event)\"\n  (blur)=\"handleBlur()\"\n/>\n\n@if (hint() && !error()) {\n  <p class=\"hint\" [id]=\"hintId\">{{ hint() }}</p>\n}\n\n@if (error()) {\n  <p class=\"error\" [id]=\"errorId\" role=\"alert\">{{ error() }}</p>\n}"
         },
         {
+            "name": "Table",
+            "id": "component-Table-e52786e5bdeb5eaa895cd1cfa9ea817bfe8ec391f779ce90f8cd3b338e3119cd4aee6045209509d10471589cda414d878fffe42b39affc80769d24d4f480e84e",
+            "file": "projects/design-system/src/lib/table/table.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "ds-table",
+            "styleUrls": [
+                "./table.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./table.html"
+            ],
+            "templateVariables": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "ariaLabel",
+                    "coverageIgnore": false,
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 17,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "caption",
+                    "coverageIgnore": false,
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 15,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "captionVisible",
+                    "coverageIgnore": false,
+                    "defaultValue": "true",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 16,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "size",
+                    "coverageIgnore": false,
+                    "defaultValue": "'medium'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "TableSize",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 19,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "striped",
+                    "coverageIgnore": false,
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 18,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "customEmptyState",
+                    "coverageIgnore": false,
+                    "defaultValue": "contentChild(EmptyState)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 22,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "isEmpty",
+                    "coverageIgnore": false,
+                    "defaultValue": "computed(\n    () => !this.rows().some((row) => !row.isHeaderRow),\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 28,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "rows",
+                    "coverageIgnore": false,
+                    "defaultValue": "contentChildren(TableRow, { descendants: true })",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 21,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "scrollRegionLabel",
+                    "coverageIgnore": false,
+                    "defaultValue": "computed(\n    () => this.ariaLabel() ?? this.caption() ?? null,\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 24,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "coverageIgnore": false,
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "EmptyState"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, computed, contentChild, contentChildren, input } from '@angular/core';\n\nimport { EmptyState } from '../empty-state/empty-state';\nimport { TableRow } from './table-row';\n\ntype TableSize = 'small' | 'medium' | 'large';\n\n@Component({\n  selector: 'ds-table',\n  imports: [EmptyState],\n  templateUrl: './table.html',\n  styleUrl: './table.scss',\n})\nexport class Table {\n  readonly caption = input<string | null>(null);\n  readonly captionVisible = input(true);\n  readonly ariaLabel = input<string | null>(null);\n  readonly striped = input(false);\n  readonly size = input<TableSize>('medium');\n\n  private readonly rows = contentChildren(TableRow, { descendants: true });\n  protected readonly customEmptyState = contentChild(EmptyState);\n\n  protected readonly scrollRegionLabel = computed(\n    () => this.ariaLabel() ?? this.caption() ?? null,\n  );\n\n  protected readonly isEmpty = computed(\n    () => !this.rows().some((row) => !row.isHeaderRow),\n  );\n}\n",
+            "styleUrl": "./table.scss",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ":host {\n  display: block;\n}\n\n.table-scroll {\n  overflow-x: auto;\n}\n\n.table-scroll:focus-visible {\n  outline: 2px solid var(--ds-color-action-primary);\n  outline-offset: -2px;\n}\n\n.table {\n  width: 100%;\n  border-collapse: collapse;\n  font-family: var(--ds-font-family-base);\n}\n\ncaption {\n  text-align: left;\n  padding-bottom: var(--ds-space-2);\n  font-weight: var(--ds-font-weight-medium);\n  color: var(--ds-color-text-default);\n}\n\n.table__caption--hidden {\n  position: absolute;\n  width: 1px;\n  height: 1px;\n  padding: 0;\n  margin: -1px;\n  overflow: hidden;\n  clip: rect(0, 0, 0, 0);\n  white-space: nowrap;\n  border: 0;\n}\n\n.table__empty {\n  border: 1px solid var(--ds-color-border-default);\n  border-top: 0;\n}\n",
+                    "styleUrl": "./table.scss"
+                }
+            ],
+            "stylesData": "",
+            "extends": [],
+            "relationships": {
+                "incoming": [],
+                "outgoing": [
+                    {
+                        "name": "EmptyState",
+                        "type": "component"
+                    }
+                ]
+            },
+            "templateData": "<div\n  class=\"table-scroll\"\n  tabindex=\"0\"\n  [attr.role]=\"scrollRegionLabel() ? 'region' : null\"\n  [attr.aria-label]=\"scrollRegionLabel()\"\n>\n  <table\n    class=\"table\"\n    [class.table--striped]=\"striped()\"\n    [class.table--small]=\"size() === 'small'\"\n    [class.table--large]=\"size() === 'large'\"\n    [attr.aria-label]=\"ariaLabel()\"\n  >\n    @if (caption()) {\n      <caption [class.table__caption--hidden]=\"!captionVisible()\">{{ caption() }}</caption>\n    }\n    <ng-content select=\"thead\" />\n    <ng-content select=\"tbody\" />\n  </table>\n</div>\n@if (isEmpty()) {\n  <div class=\"table__empty\">\n    @if (customEmptyState()) {\n      <ng-content select=\"[slot=empty]\" />\n    } @else {\n      <ds-empty-state title=\"No data\" />\n    }\n  </div>\n}\n"
+        },
+        {
+            "name": "TableCell",
+            "id": "component-TableCell-0c6672f4ecc85b66d9ebbe32de0cbfec84412685ccee3528d85262a68d79c6d923496098c73af42bd50e43ac55a483961a402aed89ec7fd18b96d9eaf8d16066",
+            "file": "projects/design-system/src/lib/table/table-cell.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "host": {},
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "ds-table-cell",
+            "styleUrls": [
+                "./table-cell.scss"
+            ],
+            "styles": [],
+            "template": "<ng-content />",
+            "templateUrl": [],
+            "templateVariables": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "header",
+                    "coverageIgnore": false,
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 14,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "coverageIgnore": false,
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, input } from '@angular/core';\n\n@Component({\n  selector: 'ds-table-cell',\n  imports: [],\n  template: `<ng-content />`,\n  styleUrl: './table-cell.scss',\n  host: {\n    '[attr.role]': 'header() ? \"columnheader\" : \"cell\"',\n    '[class.table-cell--header]': 'header()',\n  },\n})\nexport class TableCell {\n  readonly header = input(false);\n}\n",
+            "styleUrl": "./table-cell.scss",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ":host {\n  display: table-cell;\n  padding: var(--ds-space-2) var(--ds-space-3);\n  border-bottom: 1px solid var(--ds-color-border-default);\n  font-family: var(--ds-font-family-base);\n  font-size: 0.875rem;\n  color: var(--ds-color-text-default);\n  text-align: left;\n  vertical-align: middle;\n}\n\n:host-context(.table--small) {\n  padding: var(--ds-space-1) var(--ds-space-2);\n}\n\n:host-context(.table--large) {\n  padding: var(--ds-space-4) var(--ds-space-4);\n}\n\n:host(.table-cell--header) {\n  font-weight: var(--ds-font-weight-medium);\n  color: var(--ds-color-text-muted);\n  border-bottom: 1px solid var(--ds-color-border-default);\n}\n",
+                    "styleUrl": "./table-cell.scss"
+                }
+            ],
+            "stylesData": "",
+            "extends": [],
+            "relationships": {
+                "incoming": [],
+                "outgoing": []
+            }
+        },
+        {
+            "name": "TableRow",
+            "id": "component-TableRow-5d052bb73f00e2e265324f5deb57b7a1935146f57ade9ad726b47d251c24aed338eb14a927ffcbf097721711bb9486f091c66b8b7a09ff9e71a5fc1697f51951",
+            "file": "projects/design-system/src/lib/table/table-row.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "host": {},
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "ds-table-row",
+            "styleUrls": [
+                "./table-row.scss"
+            ],
+            "styles": [],
+            "template": "<ng-content />",
+            "templateUrl": [],
+            "templateVariables": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "elementRef",
+                    "coverageIgnore": false,
+                    "defaultValue": "inject<ElementRef<HTMLElement>>(ElementRef)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 11,
+                    "rawdescription": "\n",
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "coverageIgnore": false,
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, ElementRef, inject } from '@angular/core';\n\n@Component({\n  selector: 'ds-table-row',\n  imports: [],\n  template: `<ng-content />`,\n  styleUrl: './table-row.scss',\n  host: { role: 'row' },\n})\nexport class TableRow {\n  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);\n\n  /** Rows inside `<thead>` are the header row; rows inside `<tbody>` hold data. */\n  get isHeaderRow(): boolean {\n    return this.elementRef.nativeElement.closest('thead') !== null;\n  }\n}\n",
+            "styleUrl": "./table-row.scss",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ":host {\n  display: table-row;\n}\n\n:host-context(tbody):hover {\n  background: var(--ds-color-surface-hover);\n}\n\n:host-context(.table--striped):host-context(tbody):nth-of-type(even) {\n  background: var(--ds-color-surface-subtle);\n}\n\n:host-context(.table--striped):host-context(tbody):nth-of-type(even):hover {\n  background: var(--ds-color-surface-hover);\n}\n",
+                    "styleUrl": "./table-row.scss"
+                }
+            ],
+            "stylesData": "",
+            "extends": [],
+            "accessors": {
+                "isHeaderRow": {
+                    "name": "isHeaderRow",
+                    "getSignature": {
+                        "name": "isHeaderRow",
+                        "type": "boolean",
+                        "returnType": "boolean",
+                        "line": 14,
+                        "rawdescription": "\nRows inside `<thead>` are the header row; rows inside `<tbody>` hold data.",
+                        "description": "<p>Rows inside <code>&lt;thead&gt;</code> are the header row; rows inside <code>&lt;tbody&gt;</code> hold data.</p>\n"
+                    }
+                }
+            },
+            "relationships": {
+                "incoming": [],
+                "outgoing": []
+            }
+        },
+        {
             "name": "Tag",
             "id": "component-Tag-f580e3b35ac4e67a24d171f3976528c6de54c7702f353d050236ae2626b40c7ebfe0e16795e531487b491d2fcef6e9b3b10c76c500e9caea080a8a8f2e6e096f",
             "file": "projects/design-system/src/lib/tag/tag.ts",
@@ -2617,12 +3076,34 @@
                 "name": "Default",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/design-system/src/lib/empty-state/empty-state.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `<ds-empty-state title=\"No data\" />`,\n  }),\n}"
+            },
+            {
+                "name": "Default",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/design-system/src/lib/input/input.stories.ts",
                 "coverageIgnore": false,
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
                 "defaultValue": "{\n  args: {\n    label: 'Display name',\n    placeholder: 'Enter your name',\n    type: 'text',\n    size: 'medium',\n    required: false,\n    disabled: false,\n    error: null,\n    hint: null,\n  },\n}"
+            },
+            {
+                "name": "Default",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/table/table.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-table [caption]=\"caption\">\n        <thead>\n          <ds-table-row>\n            <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n            <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n            <ds-table-cell [header]=\"true\">Status</ds-table-cell>\n          </ds-table-row>\n        </thead>\n        <tbody>\n          <ds-table-row>\n            <ds-table-cell>#1001</ds-table-cell>\n            <ds-table-cell>Ada Lovelace</ds-table-cell>\n            <ds-table-cell><ds-tag variant=\"success\">Shipped</ds-tag></ds-table-cell>\n          </ds-table-row>\n          <ds-table-row>\n            <ds-table-cell>#1002</ds-table-cell>\n            <ds-table-cell>Grace Hopper</ds-table-cell>\n            <ds-table-cell><ds-tag variant=\"info\">Processing</ds-tag></ds-table-cell>\n          </ds-table-row>\n          <ds-table-row>\n            <ds-table-cell>#1003</ds-table-cell>\n            <ds-table-cell>Katherine Johnson</ds-table-cell>\n            <ds-table-cell><ds-tag variant=\"error\">Cancelled</ds-tag></ds-table-cell>\n          </ds-table-row>\n        </tbody>\n      </ds-table>\n    `,\n  }),\n  args: {\n    caption: 'Recent orders',\n  },\n  play: async ({ canvasElement }) => {\n    const canvas = within(canvasElement);\n\n    await expect(\n      canvas.getByRole('columnheader', { name: 'Order' }),\n    ).toBeInTheDocument();\n    await expect(canvas.getAllByRole('row')).toHaveLength(4); // 1 header + 3 data rows\n    await expect(canvas.queryByRole('status')).not.toBeInTheDocument();\n  },\n}"
             },
             {
                 "name": "Disabled",
@@ -2691,6 +3172,28 @@
                 "defaultValue": "{\n  args: {\n    label: 'Email',\n    placeholder: 'name@example.com',\n    type: 'email',\n  },\n}"
             },
             {
+                "name": "EmptyCustom",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/table/table.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: () => ({\n    template: `\n      <ds-table caption=\"Search results\">\n        <thead>\n          <ds-table-row>\n            <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n            <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n          </ds-table-row>\n        </thead>\n        <tbody></tbody>\n        <ds-empty-state\n          slot=\"empty\"\n          title=\"No results\"\n          message=\"Try a different search term.\"\n        />\n      </ds-table>\n    `,\n  }),\n  play: async ({ canvasElement }) => {\n    const canvas = within(canvasElement);\n\n    const status = await canvas.findByRole('status');\n    await expect(status).toHaveTextContent('No results');\n    await expect(status).toHaveTextContent('Try a different search term.');\n    await expect(canvas.queryByText('No data')).not.toBeInTheDocument();\n  },\n}"
+            },
+            {
+                "name": "EmptyDefault",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/table/table.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: () => ({\n    template: `\n      <ds-table caption=\"Recent orders\">\n        <thead>\n          <ds-table-row>\n            <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n            <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n          </ds-table-row>\n        </thead>\n        <tbody></tbody>\n      </ds-table>\n    `,\n  }),\n  play: async ({ canvasElement }) => {\n    const canvas = within(canvasElement);\n\n    const status = await canvas.findByRole('status');\n    await expect(status).toHaveTextContent('No data');\n  },\n}"
+            },
+            {
                 "name": "Error",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -2744,6 +3247,17 @@
                 "deprecationMessage": "",
                 "type": "Story",
                 "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-button [variant]=\"variant\" [disabled]=\"disabled\">\n        Edit\n      </ds-button>\n    `,\n  }),\n  args: {\n    variant: 'ghost',\n    disabled: false,\n  },\n}"
+            },
+            {
+                "name": "HiddenCaption",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/table/table.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: () => ({\n    template: `\n      <h2>Recent orders</h2>\n      <ds-table caption=\"Recent orders\" [captionVisible]=\"false\">\n        <thead>\n          <ds-table-row>\n            <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n            <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n          </ds-table-row>\n        </thead>\n        <tbody>\n          <ds-table-row>\n            <ds-table-cell>#1001</ds-table-cell>\n            <ds-table-cell>Ada Lovelace</ds-table-cell>\n          </ds-table-row>\n        </tbody>\n      </ds-table>\n    `,\n  }),\n}"
             },
             {
                 "name": "Info",
@@ -2826,6 +3340,17 @@
                 "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/design-system/src/lib/empty-state/empty-state.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<EmptyState>",
+                "defaultValue": "{\n  title: 'Data Display/Empty State',\n  component: EmptyState,\n  tags: ['autodocs'],\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/design-system/src/lib/input/input.stories.ts",
                 "coverageIgnore": false,
                 "deprecated": false,
@@ -2843,6 +3368,17 @@
                 "deprecationMessage": "",
                 "type": "Meta<Tag>",
                 "defaultValue": "{\n  title: 'Data Display/Tag',\n  component: Tag,\n  tags: ['autodocs'],\n  args: {\n    dismissed: fn(),\n  },\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/table/table.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<Table>",
+                "defaultValue": "{\n  title: 'Data Display/Table',\n  component: Table,\n  decorators: [\n    moduleMetadata({ imports: [TableRow, TableCell, Tag, EmptyState] }),\n  ],\n  tags: ['autodocs'],\n}"
             },
             {
                 "name": "Multiple",
@@ -2966,6 +3502,17 @@
                 "defaultValue": "{\n  error: 'Error',\n  warning: 'Warning',\n  success: 'Success',\n  info: 'Info',\n}"
             },
             {
+                "name": "Sizes",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/table/table.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display: flex; flex-direction: column; gap: 24px;\">\n        <ds-table caption=\"Small\" size=\"small\">\n          <thead>\n            <ds-table-row>\n              <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n              <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n            </ds-table-row>\n          </thead>\n          <tbody>\n            <ds-table-row>\n              <ds-table-cell>#1001</ds-table-cell>\n              <ds-table-cell>Ada Lovelace</ds-table-cell>\n            </ds-table-row>\n          </tbody>\n        </ds-table>\n        <ds-table caption=\"Medium (default)\">\n          <thead>\n            <ds-table-row>\n              <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n              <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n            </ds-table-row>\n          </thead>\n          <tbody>\n            <ds-table-row>\n              <ds-table-cell>#1001</ds-table-cell>\n              <ds-table-cell>Ada Lovelace</ds-table-cell>\n            </ds-table-row>\n          </tbody>\n        </ds-table>\n        <ds-table caption=\"Large\" size=\"large\">\n          <thead>\n            <ds-table-row>\n              <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n              <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n            </ds-table-row>\n          </thead>\n          <tbody>\n            <ds-table-row>\n              <ds-table-cell>#1001</ds-table-cell>\n              <ds-table-cell>Ada Lovelace</ds-table-cell>\n            </ds-table-row>\n          </tbody>\n        </ds-table>\n      </div>\n    `,\n  }),\n}"
+            },
+            {
                 "name": "Small",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -2975,6 +3522,17 @@
                 "deprecationMessage": "",
                 "type": "Story",
                 "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-dropdown [options]=\"options\" [label]=\"label\" [placeholder]=\"placeholder\" size=\"small\" />\n    `,\n  }),\n  args: {\n    options: fruitOptions,\n    label: 'Favorite fruit',\n    placeholder: 'Select a fruit',\n  },\n}"
+            },
+            {
+                "name": "Striped",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/table/table.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-table caption=\"Recent orders\" [striped]=\"true\">\n        <thead>\n          <ds-table-row>\n            <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n            <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n          </ds-table-row>\n        </thead>\n        <tbody>\n          <ds-table-row>\n            <ds-table-cell>#1001</ds-table-cell>\n            <ds-table-cell>Ada Lovelace</ds-table-cell>\n          </ds-table-row>\n          <ds-table-row>\n            <ds-table-cell>#1002</ds-table-cell>\n            <ds-table-cell>Grace Hopper</ds-table-cell>\n          </ds-table-row>\n          <ds-table-row>\n            <ds-table-cell>#1003</ds-table-cell>\n            <ds-table-cell>Katherine Johnson</ds-table-cell>\n          </ds-table-row>\n          <ds-table-row>\n            <ds-table-cell>#1004</ds-table-cell>\n            <ds-table-cell>Margaret Hamilton</ds-table-cell>\n          </ds-table-row>\n        </tbody>\n      </ds-table>\n    `,\n  }),\n}"
             },
             {
                 "name": "Subtle",
@@ -3063,6 +3621,28 @@
                 "deprecationMessage": "",
                 "type": "Story",
                 "defaultValue": "{\n  args: {\n    label: 'Username',\n    placeholder: 'Choose a username',\n    hint: 'Use between 3 and 30 characters.',\n  },\n}"
+            },
+            {
+                "name": "WithMessage",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/empty-state/empty-state.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-empty-state\n        title=\"No results\"\n        message=\"Try adjusting your filters or search terms.\"\n      />\n    `,\n  }),\n}"
+            },
+            {
+                "name": "WithProjectedIcon",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/design-system/src/lib/empty-state/empty-state.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-empty-state title=\"No results\" message=\"Try a different search.\">\n        <span slot=\"icon\" aria-hidden=\"true\" style=\"font-size: 2rem;\">🔍</span>\n      </ds-empty-state>\n    `,\n  }),\n}"
             }
         ],
         "functions": [],
@@ -3215,6 +3795,19 @@
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
                 "coverageIgnore": false,
+                "rawtype": "StoryObj<EmptyState>",
+                "file": "projects/design-system/src/lib/empty-state/empty-state.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
                 "rawtype": "StoryObj<Input>",
                 "file": "projects/design-system/src/lib/input/input.stories.ts",
                 "deprecated": false,
@@ -3235,6 +3828,32 @@
                 "rawdescription": "",
                 "description": "",
                 "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "StoryObj<Table>",
+                "file": "projects/design-system/src/lib/table/table.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "TableSize",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "\"small\" | \"medium\" | \"large\"",
+                "file": "projects/design-system/src/lib/table/table.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 193
             },
             {
                 "name": "TagVariant",
@@ -3489,6 +4108,52 @@
                     "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-card [variant]=\"variant\" [padding]=\"padding\">\n        <p>Quieter surface, more breathing room.</p>\n      </ds-card>\n    `,\n  }),\n  args: {\n    variant: 'subtle',\n    padding: 'lg',\n  },\n}"
                 }
             ],
+            "projects/design-system/src/lib/empty-state/empty-state.stories.ts": [
+                {
+                    "name": "Default",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/empty-state/empty-state.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `<ds-empty-state title=\"No data\" />`,\n  }),\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/empty-state/empty-state.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<EmptyState>",
+                    "defaultValue": "{\n  title: 'Data Display/Empty State',\n  component: EmptyState,\n  tags: ['autodocs'],\n}"
+                },
+                {
+                    "name": "WithMessage",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/empty-state/empty-state.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-empty-state\n        title=\"No results\"\n        message=\"Try adjusting your filters or search terms.\"\n      />\n    `,\n  }),\n}"
+                },
+                {
+                    "name": "WithProjectedIcon",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/empty-state/empty-state.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-empty-state title=\"No results\" message=\"Try a different search.\">\n        <span slot=\"icon\" aria-hidden=\"true\" style=\"font-size: 2rem;\">🔍</span>\n      </ds-empty-state>\n    `,\n  }),\n}"
+                }
+            ],
             "projects/design-system/src/lib/input/input.stories.ts": [
                 {
                     "name": "Default",
@@ -3588,6 +4253,85 @@
                     "deprecationMessage": "",
                     "type": "Story",
                     "defaultValue": "{\n  args: {\n    label: 'Username',\n    placeholder: 'Choose a username',\n    hint: 'Use between 3 and 30 characters.',\n  },\n}"
+                }
+            ],
+            "projects/design-system/src/lib/table/table.stories.ts": [
+                {
+                    "name": "Default",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/table/table.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-table [caption]=\"caption\">\n        <thead>\n          <ds-table-row>\n            <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n            <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n            <ds-table-cell [header]=\"true\">Status</ds-table-cell>\n          </ds-table-row>\n        </thead>\n        <tbody>\n          <ds-table-row>\n            <ds-table-cell>#1001</ds-table-cell>\n            <ds-table-cell>Ada Lovelace</ds-table-cell>\n            <ds-table-cell><ds-tag variant=\"success\">Shipped</ds-tag></ds-table-cell>\n          </ds-table-row>\n          <ds-table-row>\n            <ds-table-cell>#1002</ds-table-cell>\n            <ds-table-cell>Grace Hopper</ds-table-cell>\n            <ds-table-cell><ds-tag variant=\"info\">Processing</ds-tag></ds-table-cell>\n          </ds-table-row>\n          <ds-table-row>\n            <ds-table-cell>#1003</ds-table-cell>\n            <ds-table-cell>Katherine Johnson</ds-table-cell>\n            <ds-table-cell><ds-tag variant=\"error\">Cancelled</ds-tag></ds-table-cell>\n          </ds-table-row>\n        </tbody>\n      </ds-table>\n    `,\n  }),\n  args: {\n    caption: 'Recent orders',\n  },\n  play: async ({ canvasElement }) => {\n    const canvas = within(canvasElement);\n\n    await expect(\n      canvas.getByRole('columnheader', { name: 'Order' }),\n    ).toBeInTheDocument();\n    await expect(canvas.getAllByRole('row')).toHaveLength(4); // 1 header + 3 data rows\n    await expect(canvas.queryByRole('status')).not.toBeInTheDocument();\n  },\n}"
+                },
+                {
+                    "name": "EmptyCustom",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/table/table.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: () => ({\n    template: `\n      <ds-table caption=\"Search results\">\n        <thead>\n          <ds-table-row>\n            <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n            <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n          </ds-table-row>\n        </thead>\n        <tbody></tbody>\n        <ds-empty-state\n          slot=\"empty\"\n          title=\"No results\"\n          message=\"Try a different search term.\"\n        />\n      </ds-table>\n    `,\n  }),\n  play: async ({ canvasElement }) => {\n    const canvas = within(canvasElement);\n\n    const status = await canvas.findByRole('status');\n    await expect(status).toHaveTextContent('No results');\n    await expect(status).toHaveTextContent('Try a different search term.');\n    await expect(canvas.queryByText('No data')).not.toBeInTheDocument();\n  },\n}"
+                },
+                {
+                    "name": "EmptyDefault",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/table/table.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: () => ({\n    template: `\n      <ds-table caption=\"Recent orders\">\n        <thead>\n          <ds-table-row>\n            <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n            <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n          </ds-table-row>\n        </thead>\n        <tbody></tbody>\n      </ds-table>\n    `,\n  }),\n  play: async ({ canvasElement }) => {\n    const canvas = within(canvasElement);\n\n    const status = await canvas.findByRole('status');\n    await expect(status).toHaveTextContent('No data');\n  },\n}"
+                },
+                {
+                    "name": "HiddenCaption",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/table/table.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: () => ({\n    template: `\n      <h2>Recent orders</h2>\n      <ds-table caption=\"Recent orders\" [captionVisible]=\"false\">\n        <thead>\n          <ds-table-row>\n            <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n            <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n          </ds-table-row>\n        </thead>\n        <tbody>\n          <ds-table-row>\n            <ds-table-cell>#1001</ds-table-cell>\n            <ds-table-cell>Ada Lovelace</ds-table-cell>\n          </ds-table-row>\n        </tbody>\n      </ds-table>\n    `,\n  }),\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/table/table.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<Table>",
+                    "defaultValue": "{\n  title: 'Data Display/Table',\n  component: Table,\n  decorators: [\n    moduleMetadata({ imports: [TableRow, TableCell, Tag, EmptyState] }),\n  ],\n  tags: ['autodocs'],\n}"
+                },
+                {
+                    "name": "Sizes",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/table/table.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display: flex; flex-direction: column; gap: 24px;\">\n        <ds-table caption=\"Small\" size=\"small\">\n          <thead>\n            <ds-table-row>\n              <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n              <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n            </ds-table-row>\n          </thead>\n          <tbody>\n            <ds-table-row>\n              <ds-table-cell>#1001</ds-table-cell>\n              <ds-table-cell>Ada Lovelace</ds-table-cell>\n            </ds-table-row>\n          </tbody>\n        </ds-table>\n        <ds-table caption=\"Medium (default)\">\n          <thead>\n            <ds-table-row>\n              <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n              <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n            </ds-table-row>\n          </thead>\n          <tbody>\n            <ds-table-row>\n              <ds-table-cell>#1001</ds-table-cell>\n              <ds-table-cell>Ada Lovelace</ds-table-cell>\n            </ds-table-row>\n          </tbody>\n        </ds-table>\n        <ds-table caption=\"Large\" size=\"large\">\n          <thead>\n            <ds-table-row>\n              <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n              <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n            </ds-table-row>\n          </thead>\n          <tbody>\n            <ds-table-row>\n              <ds-table-cell>#1001</ds-table-cell>\n              <ds-table-cell>Ada Lovelace</ds-table-cell>\n            </ds-table-row>\n          </tbody>\n        </ds-table>\n      </div>\n    `,\n  }),\n}"
+                },
+                {
+                    "name": "Striped",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/design-system/src/lib/table/table.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: (args) => ({\n    props: args,\n    template: `\n      <ds-table caption=\"Recent orders\" [striped]=\"true\">\n        <thead>\n          <ds-table-row>\n            <ds-table-cell [header]=\"true\">Order</ds-table-cell>\n            <ds-table-cell [header]=\"true\">Customer</ds-table-cell>\n          </ds-table-row>\n        </thead>\n        <tbody>\n          <ds-table-row>\n            <ds-table-cell>#1001</ds-table-cell>\n            <ds-table-cell>Ada Lovelace</ds-table-cell>\n          </ds-table-row>\n          <ds-table-row>\n            <ds-table-cell>#1002</ds-table-cell>\n            <ds-table-cell>Grace Hopper</ds-table-cell>\n          </ds-table-row>\n          <ds-table-row>\n            <ds-table-cell>#1003</ds-table-cell>\n            <ds-table-cell>Katherine Johnson</ds-table-cell>\n          </ds-table-row>\n          <ds-table-row>\n            <ds-table-cell>#1004</ds-table-cell>\n            <ds-table-cell>Margaret Hamilton</ds-table-cell>\n          </ds-table-row>\n        </tbody>\n      </ds-table>\n    `,\n  }),\n}"
                 }
             ],
             "projects/design-system/src/lib/button/button.stories.ts": [
@@ -3930,6 +4674,21 @@
                     "kind": 184
                 }
             ],
+            "projects/design-system/src/lib/empty-state/empty-state.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "StoryObj<EmptyState>",
+                    "file": "projects/design-system/src/lib/empty-state/empty-state.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
             "projects/design-system/src/lib/input/input.stories.ts": [
                 {
                     "name": "Story",
@@ -3958,6 +4717,36 @@
                     "rawdescription": "",
                     "description": "",
                     "kind": 184
+                }
+            ],
+            "projects/design-system/src/lib/table/table.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "StoryObj<Table>",
+                    "file": "projects/design-system/src/lib/table/table.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/design-system/src/lib/table/table.ts": [
+                {
+                    "name": "TableSize",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "\"small\" | \"medium\" | \"large\"",
+                    "file": "projects/design-system/src/lib/table/table.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 193
                 }
             ],
             "projects/design-system/src/lib/tag/tag.ts": [
@@ -4421,6 +5210,65 @@
                 "status": "low"
             },
             {
+                "filePath": "projects/design-system/src/lib/empty-state/empty-state.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Default",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/empty-state/empty-state.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/empty-state/empty-state.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "WithMessage",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/empty-state/empty-state.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "WithProjectedIcon",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/empty-state/empty-state.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/empty-state/empty-state.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "EmptyState",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
                 "filePath": "projects/design-system/src/lib/input/input.stories.ts",
                 "type": "variable",
                 "linktype": "miscellaneous",
@@ -4545,6 +5393,123 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "typealias",
                 "name": "InputType",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/table/table-cell.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "TableCell",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/table/table-row.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "TableRow",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/table/table.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Default",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/table/table.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "EmptyCustom",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/table/table.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "EmptyDefault",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/table/table.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "HiddenCaption",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/table/table.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/table/table.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Sizes",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/table/table.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Striped",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/table/table.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/table/table.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "Table",
+                "coveragePercent": 0,
+                "coverageCount": "0/10",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/design-system/src/lib/table/table.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "TableSize",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"

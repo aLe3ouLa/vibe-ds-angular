@@ -1,0 +1,29 @@
+<div
+  class="table-scroll"
+  tabindex="0"
+  [attr.role]="scrollRegionLabel() ? 'region' : null"
+  [attr.aria-label]="scrollRegionLabel()"
+>
+  <table
+    class="table"
+    [class.table--striped]="striped()"
+    [class.table--small]="size() === 'small'"
+    [class.table--large]="size() === 'large'"
+    [attr.aria-label]="ariaLabel()"
+  >
+    @if (caption()) {
+      <caption [class.table__caption--hidden]="!captionVisible()">{{ caption() }}</caption>
+    }
+    <ng-content select="thead" />
+    <ng-content select="tbody" />
+  </table>
+</div>
+@if (isEmpty()) {
+  <div class="table__empty">
+    @if (customEmptyState()) {
+      <ng-content select="[slot=empty]" />
+    } @else {
+      <ds-empty-state title="No data" />
+    }
+  </div>
+}

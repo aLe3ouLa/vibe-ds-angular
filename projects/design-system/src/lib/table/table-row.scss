@@ -1,0 +1,15 @@
+:host {
+  display: table-row;
+}
+
+:host-context(tbody):hover {
+  background: var(--ds-color-surface-hover);
+}
+
+:host-context(.table--striped):host-context(tbody):nth-of-type(even) {
+  background: var(--ds-color-surface-subtle);
+}
+
+:host-context(.table--striped):host-context(tbody):nth-of-type(even):hover {
+  background: var(--ds-color-surface-hover);
+}

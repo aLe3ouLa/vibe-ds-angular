@@ -8,6 +8,7 @@
     "surface": {
       "default": { "$type": "color", "$value": "{color.white}" },
       "subtle": { "$type": "color", "$value": "{color.gray.50}" },
+      "hover": { "$type": "color", "$value": "{color.gray.200}" },
       "inverse": { "$type": "color", "$value": "{color.dark}" }
     },
     "border": {

@@ -1,5 +1,42 @@
 # @alexandra/design-system
 
+## 0.4.0
+
+### Minor Changes
+
+- [#10](https://github.com/aLe3ouLa/vibe-ds-angular/pull/10) [`c37f262`](https://github.com/aLe3ouLa/vibe-ds-angular/commit/c37f2627fb276937db5733eb0bdd53c1415e7fda) Thanks [@aLe3ouLa](https://github.com/aLe3ouLa)! - Add `ds-alert-banner` with `variant` (`error`/`warning`/`success`/`info`),
+  a required `message`, an optional dismiss button (`dismissible`,
+  `dismissLabel`, `dismissed` output), and two named action slots
+  (`slot="primary-action"`/`slot="secondary-action"`) for projecting
+  `ds-button` actions. No new design tokens — reuses `ds-tag`'s existing
+  feedback color pairing.
+
+- [#12](https://github.com/aLe3ouLa/vibe-ds-angular/pull/12) [`2406a2e`](https://github.com/aLe3ouLa/vibe-ds-angular/commit/2406a2e9155d1bfb816da42cc3a76de540441ba1) Thanks [@aLe3ouLa](https://github.com/aLe3ouLa)! - Add `ds-dropdown` — single/multi select from a short list of options.
+  Supports `searchable` filtering, `clearable`, three `size`s, `disabled`/
+  `readonly`/`error`/`hint` states, and implements `ControlValueAccessor`.
+  Multi-select values render as dismissible `ds-tag` chips. No new design
+  tokens — reuses `ds-input`'s existing spacing/color/radius/font tokens.
+
+- [#10](https://github.com/aLe3ouLa/vibe-ds-angular/pull/10) [`c37f262`](https://github.com/aLe3ouLa/vibe-ds-angular/commit/c37f2627fb276937db5733eb0bdd53c1415e7fda) Thanks [@aLe3ouLa](https://github.com/aLe3ouLa)! - Adds an alert banner to the DS
+
+- [#13](https://github.com/aLe3ouLa/vibe-ds-angular/pull/13) [`5ba876a`](https://github.com/aLe3ouLa/vibe-ds-angular/commit/5ba876a37efc3c1c3c72742b1bb89aa07f523a8e) Thanks [@aLe3ouLa](https://github.com/aLe3ouLa)! - Add `ds-table` and `ds-empty-state`.
+
+  `ds-table` (with `ds-table-row`/`ds-table-cell`) is a static-display
+  table — content-projected, not data-driven, so any component (e.g.
+  `ds-tag`) can be placed inside a cell. Supports `caption`/
+  `captionVisible`/`ariaLabel`, `striped`, and `size`. Includes a built-in
+  empty state and a keyboard-scrollable overflow wrapper for wide tables.
+  Sorting, row selection, pagination, expandable rows, sticky header, and
+  responsive row-stacking are deferred to future RFCs.
+
+  `ds-empty-state` is a standalone "no data" component (`title`, optional
+  `message`, and a projected icon slot) — `ds-table` uses it internally for
+  its default empty state, and it's reusable anywhere else the same
+  "nothing here" pattern applies.
+
+  One new design token: `--ds-color-surface-hover`, needed once `striped`
+  and per-row hover both required visually distinct tinted backgrounds.
+
 ## 0.3.0
 
 ### Minor Changes
